@@ -102,7 +102,7 @@
     "@babel/types" "^7.5.5"
     lodash "^4.17.13"
 
-"@babel/helper-plugin-utils@^7.0.0":
+"@babel/helper-plugin-utils@^7.0.0", "@babel/helper-plugin-utils@^7.0.0-beta.52":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@babel/helper-plugin-utils/-/helper-plugin-utils-7.0.0.tgz#bbb3fbee98661c569034237cc03967ba99b4f250"
 
@@ -198,7 +198,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.0.0"
 
-"@babel/plugin-syntax-jsx@^7.2.0":
+"@babel/plugin-syntax-jsx@^7.0.0-beta.52", "@babel/plugin-syntax-jsx@^7.2.0":
   version "7.2.0"
   resolved "https://registry.yarnpkg.com/@babel/plugin-syntax-jsx/-/plugin-syntax-jsx-7.2.0.tgz#0b85a3b4bc7cdf4cc4b8bf236335b907ca22e7c7"
   dependencies:
@@ -497,6 +497,18 @@ babel-plugin-espower@^3.0.1:
     espower-location-detector "^1.0.0"
     espurify "^1.6.0"
     estraverse "^4.1.1"
+
+babel-plugin-syntax-jsx@^6.18.0:
+  version "6.18.0"
+  resolved "https://registry.yarnpkg.com/babel-plugin-syntax-jsx/-/babel-plugin-syntax-jsx-6.18.0.tgz#0af32a9a6e13ca7a3fd5069e62d7b0f58d0d8946"
+
+"babel-plugin-transform-jsx-punning@git+https://git@github.com/cannoneyed/babel-plugin-transform-jsx-punning.git":
+  version "1.0.0"
+  resolved "git+https://git@github.com/cannoneyed/babel-plugin-transform-jsx-punning.git#2c4079653b0d17689856f3b0a48209f8b37b739a"
+  dependencies:
+    "@babel/helper-plugin-utils" "^7.0.0-beta.52"
+    "@babel/plugin-syntax-jsx" "^7.0.0-beta.52"
+    babel-plugin-syntax-jsx "^6.18.0"
 
 balanced-match@^1.0.0:
   version "1.0.0"
