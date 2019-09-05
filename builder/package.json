@@ -1,0 +1,16 @@
+{
+  "name": "@jsc/builder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-syntax-jsx": "^7.2.0",
+    "@babel/plugin-transform-react-jsx": "^7.3.0"
+  },
+  "scripts": {
+    "test": "ava tests/**.js"
+  },
+  "devDependencies": {
+    "ava": "^2.3.0"
+  }
+}
