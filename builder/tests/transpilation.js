@@ -1,5 +1,5 @@
 import test from "ava"
-import { transpile } from "../src"
+import { transpile } from "../src/transpilation"
 
 test("simple jsx compilation", t => {
   t.assert(
