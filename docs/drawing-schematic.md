@@ -32,3 +32,27 @@ After all the drawings are placed. Connections are drawn by the global connectio
   "connectsTo": [{ drawingId: "", portId: "" }]
 }
 ```
+
+# Alternative Drawing Format
+
+```javascript
+{
+  "drawingid1": {
+    "x": 0,
+    "y": 0,
+    "width": 0,
+    "height": 0,
+    "ports": {
+      "left": { "x": 0, "y": 0 },
+      "right": { "x": 10, "y": 0 },
+    },
+    paths: [],
+    texts: [],
+    "children": ["drawingid2", "drawingid3"],
+
+    "componentName": "Resistor1",
+    // alternately, "connectionName"
+  },
+  // ...
+}
+```
