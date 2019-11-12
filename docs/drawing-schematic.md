@@ -26,12 +26,24 @@ Each component is turned into a drawing. This is the first stage.
 After all the drawings are placed. Connections are drawn by the global connection drawer.
 
 ```javascript
+// connection map
+{
+  Connection1: {
+    connectsTo: [{ drawingId: "drawingid1", portId: "port2" }]
+  }
+}
+```
+
+<!-- This was the old spec, I don't see how it's better... -->
+
+<!-- ```javascript
 // connection
 {
   "connectionName": "Connection1",
   "connectsTo": [{ drawingId: "", portId: "" }]
 }
 ```
+ -->
 
 # Alternative Drawing Format
 

@@ -1,7 +1,7 @@
 # 01 - Getting Started
 
 JSC, or Javascript Circuit, is a new way of drawing schematics inspired by the modularity, power, and
-encapsulation of react. JSC will allow you to create powerful schematic diagrams
+encapsulation of react. JSC allows you to create powerful schematic diagrams
 and convert them into circuits. The community modules of JSC allow you to build
 designs based off the designs of others.
 
