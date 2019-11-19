@@ -19,6 +19,10 @@ storiesOf("Capacitor", module).add("Basic", () => (
           { stroke: "red", strokeWidth: 2, d: "M 18 0 l 0 30" },
           { stroke: "red", strokeWidth: 1, d: "M 18 15 l 12 0" }
         ],
+        ports: {
+          left: {},
+          right: {}
+        },
         texts: [{ x: 25, y: 10, text: "C1" }]
       }
     }}
