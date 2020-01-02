@@ -1,11 +1,11 @@
 // @flow weak
 
-import React from "react"
+import React from "react";
 
-const Drawing = ({}) => {}
+const Drawing = ({}) => {};
 
 export default ({ data, rootDrawingId }) => {
-  const rootDrawing = data[rootDrawingId]
+  const rootDrawing = data[rootDrawingId];
 
   const getDrawing = ({
     x,
@@ -14,6 +14,7 @@ export default ({ data, rootDrawingId }) => {
     height,
     paths = [],
     texts = [],
+    ports = {},
     children = []
   }) => {
     return (
@@ -29,12 +30,12 @@ export default ({ data, rootDrawingId }) => {
         ))}
         {texts.map((t, i) => (
           <text
+            key={i}
             style={{
               fontWeight: "bold",
               fontFamily: "sans-serif",
               fontSize: 14
             }}
-            key={i}
             fill={t.fill || "red"}
             x={t.x}
             y={t.y}
@@ -42,16 +43,33 @@ export default ({ data, rootDrawingId }) => {
             {t.text}
           </text>
         ))}
+        {Object.entries(ports).map(([name, { x, y, color }]) => (
+          <rect
+            style={{
+              stroke: color,
+              strokeWidth: 2,
+              fill: "none"
+            }}
+            key={name}
+            x={x - 5}
+            y={y - 5}
+            width={10}
+            height={10}
+          />
+        ))}
         {children.map(c => getDrawing(data[c]))}
       </g>
-    )
-  }
+    );
+  };
 
   return (
     <div>
-      <svg width={rootDrawing.width} height={rootDrawing.height}>
+      <svg
+        width={rootDrawing.width + rootDrawing.x}
+        height={rootDrawing.height + rootDrawing.y}
+      >
         {getDrawing(rootDrawing)}
       </svg>
     </div>
-  )
-}
+  );
+};

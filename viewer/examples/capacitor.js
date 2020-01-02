@@ -1,9 +1,9 @@
 // @flow
 
-import React from "react"
+import React from "react";
 
-import Renderer from "../src/Renderer"
-import { storiesOf } from "@storybook/react"
+import Renderer from "../src/Renderer";
+import { storiesOf } from "@storybook/react";
 
 storiesOf("Capacitor", module).add("Basic", () => (
   <Renderer
@@ -19,13 +19,9 @@ storiesOf("Capacitor", module).add("Basic", () => (
           { stroke: "red", strokeWidth: 2, d: "M 18 0 l 0 30" },
           { stroke: "red", strokeWidth: 1, d: "M 18 15 l 12 0" }
         ],
-        ports: {
-          left: {},
-          right: {}
-        },
         texts: [{ x: 25, y: 10, text: "C1" }]
       }
     }}
     rootDrawingId="capacitor"
   />
-))
+));
