@@ -24,10 +24,12 @@ storiesOf("Ports", module).add("Basic", () => (
             x: 0,
             y: 15,
             color: "blue"
+          },
+          right: {
+            x: 30,
+            y: 15,
+            color: "blue"
           }
-          // right: {
-          //   x: 0
-          // }
         },
         texts: [{ x: 25, y: 10, text: "C1" }]
       }
