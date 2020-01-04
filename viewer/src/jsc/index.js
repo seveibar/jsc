@@ -67,20 +67,24 @@ function renderPrimitive(
   context._primitiveCount[element.type] = context._primitiveCount[element.type]
     ? context._primitiveCount[element.type] + 1
     : 1
+
+  const id = element.props.id || "C" + context._primitiveCount[element.type]
+
   switch (element.type) {
     case "linear": {
       // Render children to determine size
 
       // Move children into linear position
 
-      return ({
-        width: 0,
-        height: 0,
-        children: []
-      }: any)
+      // const rendered = ({
+      //   width: 0,
+      //   height: 0,
+      //   children: []
+      // }: any)
+      return
     }
     case "capacitor": {
-      return {
+      context.rendering[id] = {
         x: 0,
         y: 0,
         width: 45,
@@ -113,6 +117,7 @@ function renderPrimitive(
         ],
         children: []
       }
+      return
     }
     default: {
       throw new Error(`Unknown Primitive: "${element.type}"`)
@@ -123,33 +128,43 @@ function renderPrimitive(
 export function render(
   context: RenderContext | CreatedElement,
   element?: CreatedElement
-) {
+): Rendering {
   let isRoot = false
   if (!element) {
     element = (context: any)
-    context = {
+    context = ({
       _path: ["root"],
+      rendering: {},
       _x: 0,
       _y: 0,
       _width: 0,
       _height: 0,
-      _primitiveCounter: {}
-    }
+      _primitiveCount: {}
+    }: RenderContext)
     isRoot = true
   } else {
+    /*:: context = ((context:any):RenderContext) */
     context._path.push(
       typeof element.type === "function" ? element.type.name : element.type
     )
   }
+  /*::
+  context = ((context:any): RenderContext)
+  element = ((element:any): CreatedElement)
+  */
 
   if (typeof element.type === "function") {
     render(context, element.type(element.props))
   } else {
-    return renderPrimitive(context, element)
+    renderPrimitive(context, element)
   }
 
   context._path.pop()
 
   if (isRoot) {
   }
+
+  return context.rendering
 }
+
+export default render
