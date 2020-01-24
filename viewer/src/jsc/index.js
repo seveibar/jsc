@@ -60,6 +60,12 @@ type RenderContext = {
   _primitiveCount: { [string]: number }
 }
 
+const primitivePrefixes = {
+  capacitor: "C",
+  resistor: "R",
+  linear: "L"
+}
+
 function renderPrimitive(
   context: RenderContext,
   element: CreatedElement
@@ -68,19 +74,34 @@ function renderPrimitive(
     ? context._primitiveCount[element.type] + 1
     : 1
 
-  const id = element.props.id || "C" + context._primitiveCount[element.type]
+  const id =
+    element.props.id ||
+    primitivePrefixes[element.type] + context._primitiveCount[element.type]
+
+  if (context.rendering[id]) throw new Error(`Id conflict "${id}"`)
+
+  context._renderPathElements[context._path.join(".")] = (
+    context._renderPathElements[context._path.join(".")] || []
+  ).concat([id])
 
   switch (element.type) {
     case "linear": {
       // Render children to determine size
+      const { children } = element.props
+      context._path.push(id)
 
-      // Move children into linear position
+      for (const child of children) {
+        render(context, child)
+      }
+
+      // TODO Move children into linear position
 
       // const rendered = ({
       //   width: 0,
       //   height: 0,
       //   children: []
       // }: any)
+      context._path.pop()
       return
     }
     case "capacitor": {
@@ -111,7 +132,38 @@ function renderPrimitive(
           {
             x: 25,
             y: 10,
-            text: "C" + context._primitiveCount[element.type],
+            text: id,
+            color: "red"
+          }
+        ],
+        children: []
+      }
+      return
+    }
+    case "resistor": {
+      context.rendering[id] = {
+        x: 0,
+        y: 0,
+        width: 45,
+        height: 30,
+        paths: [{ stroke: "red", strokeWidth: 1, d: "M 0 15 l 25 0" }],
+        ports: {
+          left: {
+            x: 0,
+            y: 15,
+            color: "blue"
+          },
+          right: {
+            x: 30,
+            y: 15,
+            color: "blue"
+          }
+        },
+        texts: [
+          {
+            x: 25,
+            y: 10,
+            text: id,
             color: "red"
           }
         ],
@@ -135,6 +187,7 @@ export function render(
     context = ({
       _path: ["root"],
       rendering: {},
+      _renderPathElements: {},
       _x: 0,
       _y: 0,
       _width: 0,
@@ -144,9 +197,9 @@ export function render(
     isRoot = true
   } else {
     /*:: context = ((context:any):RenderContext) */
-    context._path.push(
-      typeof element.type === "function" ? element.type.name : element.type
-    )
+    // context._path.push(
+    //   typeof element.type === "function" ? element.type.name : element.type
+    // )
   }
   /*::
   context = ((context:any): RenderContext)
@@ -159,7 +212,7 @@ export function render(
     renderPrimitive(context, element)
   }
 
-  context._path.pop()
+  // context._path.pop()
 
   if (isRoot) {
   }
