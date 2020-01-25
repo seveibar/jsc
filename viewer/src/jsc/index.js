@@ -66,6 +66,17 @@ const primitivePrefixes = {
   linear: "L"
 }
 
+function moveRenderedElement(
+  context: RenderContext,
+  elementId: string,
+  x: number,
+  y: number
+) {
+  context.rendering[elementId].x = x
+  context.rendering[elementId].y = y
+  // TODO Move the element and it's children
+}
+
 function renderPrimitive(
   context: RenderContext,
   element: CreatedElement
@@ -94,13 +105,38 @@ function renderPrimitive(
         render(context, child)
       }
 
+      const renderedChildren =
+        context._renderPathElements[context._path.join(".")]
+      const totalWidth = renderedChildren.reduce(
+        (acc, a) => acc + context.rendering[a].width,
+        0
+      )
+      const totalHeight = renderedChildren.reduce(
+        (acc, a) => acc + context.rendering[a].height,
+        0
+      )
+
+      let positionX = 0
+      for (const childId of renderedChildren) {
+        moveRenderedElement(
+          context,
+          childId,
+          positionX,
+          totalHeight / 2 - context.rendering[childId].height
+        )
+        positionX += context.rendering[childId].width
+      }
+
       // TODO Move children into linear position
 
-      // const rendered = ({
-      //   width: 0,
-      //   height: 0,
-      //   children: []
-      // }: any)
+      context.rendering[id] = ({
+        x: 0,
+        y: 0,
+        width: totalWidth,
+        height: totalHeight,
+        children: []
+      }: any)
+
       context._path.pop()
       return
     }
