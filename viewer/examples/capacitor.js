@@ -1,9 +1,9 @@
 // @flow
 
-import React from "react";
+import React from "react"
 
-import Renderer from "../src/Renderer";
-import { storiesOf } from "@storybook/react";
+import Renderer from "../src/Renderer"
+import { storiesOf } from "@storybook/react"
 
 storiesOf("Capacitor", module).add("Basic", () => (
   <Renderer
@@ -24,4 +24,4 @@ storiesOf("Capacitor", module).add("Basic", () => (
     }}
     rootDrawingId="capacitor"
   />
-));
+))
