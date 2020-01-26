@@ -70,15 +70,23 @@ export default (
         color: "red"
       },
       ...order
-        .map((o, i) => {
+        .flatMap((o, i) => {
           if (o === null) return null
           const left = i < 3
-          return {
-            x: renderedPorts[o].x + (left ? 5 : -13),
-            y: renderedPorts[o].y - 4,
-            color: "red",
-            text: o
-          }
+          return [
+            {
+              x: renderedPorts[o].x + (left ? 5 : -13),
+              y: renderedPorts[o].y - 4,
+              color: "red",
+              text: o
+            },
+            {
+              x: renderedPorts[o].x + (left ? 5 : -13),
+              y: renderedPorts[o].y - 4,
+              color: "red",
+              text: o
+            }
+          ].filter(Boolean)
         })
         .filter(Boolean)
     ],
