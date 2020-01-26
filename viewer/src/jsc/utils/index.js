@@ -11,7 +11,7 @@ export function moveRenderedElement(
   const dy = y - elm.y
   elm.x = x
   elm.y = y
-  for (const childId of context.rendering[elementId]) {
+  for (const childId of context.rendering[elementId].children || []) {
     const childElm = context.rendering[elementId]
     moveRenderedElement(context, childId, childElm.x + dx, childElm.y + dy)
   }

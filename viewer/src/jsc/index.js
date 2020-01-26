@@ -10,6 +10,11 @@ import type {
 import createLinearRenderedElement from "./primitives/linear.js"
 import createResistorRenderedElement from "./primitives/resistor.js"
 import createCapacitorRenderedElement from "./primitives/capacitor.js"
+import createSideRenderedElement from "./primitives/side.js"
+import createSurroundRenderedElement from "./primitives/surround.js"
+import createBugRenderedElement from "./primitives/bug.js"
+import createPaddingRenderedElement from "./primitives/padding.js"
+
 import { moveRenderedElement } from "./utils"
 
 export function createElement(
@@ -35,7 +40,11 @@ export function useConnections(n: number): Array<Connection> {
 const primitivePrefixes = {
   capacitor: "C",
   resistor: "R",
-  linear: "L"
+  linear: "L",
+  side: "Si",
+  surround: "Su",
+  bug: "B",
+  padding: "P"
 }
 
 function renderPrimitive(
@@ -65,6 +74,18 @@ function renderPrimitive(
     }
     case "resistor": {
       return createResistorRenderedElement(context, element, id)
+    }
+    case "side": {
+      return createSideRenderedElement(context, element, id)
+    }
+    case "surround": {
+      return createSurroundRenderedElement(context, element, id)
+    }
+    case "bug": {
+      return createBugRenderedElement(context, element, id)
+    }
+    case "padding": {
+      return createPaddingRenderedElement(context, element, id)
     }
     default: {
       throw new Error(`Unknown Primitive: "${element.type}"`)

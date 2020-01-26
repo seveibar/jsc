@@ -6,13 +6,13 @@ import Renderer from "../src/Renderer"
 import { storiesOf } from "@storybook/react"
 import jsc, { render } from "../src/jsc/index.js"
 
-storiesOf("Capacitor", module).add("Basic", () => {
-  const elm = jsc("capacitor")
+storiesOf("Padding", module).add("Basic", () => {
+  const elm = jsc("padding", { amount: 50 }, jsc("capacitor"))
   return (
     <>
+      <Renderer data={render(elm)} rootDrawingId="P1" />
       <pre>{JSON.stringify(elm, null, "  ")}</pre>
       <pre>{JSON.stringify(render(elm), null, "  ")}</pre>
-      <Renderer data={render(elm)} rootDrawingId="C1" />
     </>
   )
 })

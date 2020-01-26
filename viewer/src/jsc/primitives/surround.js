@@ -13,12 +13,17 @@ export default (
   const { children } = element.props
   context._path.push(id)
 
+  // TODO it could probably be < 3
+  if (children.length === 3)
+    throw new Error("<surround /> requires exactly 3 children")
+
   for (const child of children) {
     render(context, child)
   }
 
   const renderedChildrenIds =
     context._renderPathElements[context._path.join(".")]
+
   const totalWidth = renderedChildrenIds.reduce(
     (acc, a) => acc + context.rendering[a].width,
     0

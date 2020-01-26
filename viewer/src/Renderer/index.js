@@ -1,11 +1,11 @@
 // @flow weak
 
-import React from "react";
+import React from "react"
 
-const Drawing = ({}) => {};
+const Drawing = ({}) => {}
 
-export default ({ data, rootDrawingId }) => {
-  const rootDrawing = data[rootDrawingId];
+export default ({ data, rootDrawingId, padding = 0 }) => {
+  const rootDrawing = data[rootDrawingId]
 
   const getDrawing = ({
     x,
@@ -59,17 +59,19 @@ export default ({ data, rootDrawingId }) => {
         ))}
         {children.map(c => getDrawing(data[c]))}
       </g>
-    );
-  };
+    )
+  }
 
   return (
     <div>
       <svg
-        width={rootDrawing.width + rootDrawing.x}
-        height={rootDrawing.height + rootDrawing.y}
+        width={rootDrawing.width + rootDrawing.x + padding * 2}
+        height={rootDrawing.height + rootDrawing.y + padding * 2}
       >
-        {getDrawing(rootDrawing)}
+        <g transform={`translate(${padding} ${padding})`}>
+          {getDrawing(rootDrawing)}
+        </g>
       </svg>
     </div>
-  );
-};
+  )
+}

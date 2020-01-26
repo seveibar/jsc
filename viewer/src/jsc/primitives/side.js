@@ -28,15 +28,15 @@ export default (
     0
   )
 
-  let positionX = 0
+  let positionY = 0
   for (const childId of renderedChildrenIds) {
     moveRenderedElement(
       context,
       childId,
-      positionX,
-      totalHeight / 2 - context.rendering[childId].height
+      totalWidth / 2 - context.rendering[childId].width,
+      positionY
     )
-    positionX += context.rendering[childId].width
+    positionY += context.rendering[childId].height
   }
 
   // TODO Move children into linear position
