@@ -1,5 +1,6 @@
 // @flow
 
+import { useConnections } from "../hooks/use-connections.js"
 import { RenderContext, RenderedElement } from "../types"
 import { rotateRenderedElement } from "../utils"
 
@@ -9,6 +10,16 @@ export default (
   id: string
 ) => {
   const { rotation = 0 } = element.props
+  const { left, right } = useConnections(element.props, {
+    left: {
+      accessibleToParent: true,
+      aliases: []
+    },
+    right: {
+      accessibleToParent: true,
+      aliases: []
+    }
+  })
   context.rendering[id] = {
     x: 0,
     y: 0,

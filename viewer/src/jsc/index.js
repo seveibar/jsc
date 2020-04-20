@@ -17,6 +17,7 @@ import createPaddingRenderedElement from "./primitives/padding.js"
 import createLayoutRenderedElement from "./primitives/layout.js"
 
 import { moveRenderedElementTo } from "./utils"
+import { renderContext } from "./hooks/use-render-context.js"
 
 export function createElement(
   type: string | Function,
@@ -62,6 +63,7 @@ function renderPrimitive(
   const id =
     element.props.id ||
     primitivePrefixes[element.type] + context._primitiveCount[element.type]
+  context._lastRenderedElementId = id
 
   if (context.rendering[id]) throw new Error(`Id conflict "${id}"`)
 
@@ -115,7 +117,9 @@ export function render(
       _y: 0,
       _width: 0,
       _height: 0,
-      _primitiveCount: {}
+      _primitiveCount: {},
+      _lastRenderedElementId: "root",
+      _connections: {}
     }: RenderContext)
     isRoot = true
   }
@@ -123,6 +127,10 @@ export function render(
   context = ((context:any): RenderContext)
   element = ((element:any): CreatedElement)
   */
+
+  if (isRoot) {
+    renderContext.value = context
+  }
 
   if (element.props.rotate === true && element.props.rotation === undefined) {
     element.props.rotation = 90
