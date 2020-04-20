@@ -39,7 +39,6 @@ const swapXYsInSVGPath = d => {
       newD.push(nums[0])
     }
   }
-  console.log(d, newD.join(" "))
   return newD.join(" ")
 }
 
