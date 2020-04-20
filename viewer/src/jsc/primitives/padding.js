@@ -2,7 +2,7 @@
 
 import { RenderContext, RenderedElement } from "../types"
 import { render } from "../index.js"
-import { moveRenderedElement } from "../utils"
+import { moveRenderedElementTo } from "../utils"
 
 export default (
   context: RenderContext,
@@ -22,7 +22,7 @@ export default (
   const renderedChildId =
     context._renderPathElements[context._path.join(".")][0]
 
-  moveRenderedElement(context, renderedChildId, amount / 2, amount / 2)
+  moveRenderedElementTo(context, renderedChildId, amount / 2, amount / 2)
 
   // TODO Move children into linear position
   const renderedChild = context.rendering[renderedChildId]

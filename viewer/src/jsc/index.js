@@ -14,8 +14,9 @@ import createSideRenderedElement from "./primitives/side.js"
 import createSurroundRenderedElement from "./primitives/surround.js"
 import createBugRenderedElement from "./primitives/bug.js"
 import createPaddingRenderedElement from "./primitives/padding.js"
+import createLayoutRenderedElement from "./primitives/layout.js"
 
-import { moveRenderedElement } from "./utils"
+import { moveRenderedElementTo } from "./utils"
 
 export function createElement(
   type: string | Function,
@@ -40,7 +41,8 @@ export function useConnections(n: number): Array<Connection> {
 const primitivePrefixes = {
   capacitor: "C",
   resistor: "R",
-  linear: "L",
+  linear: "Li",
+  layout: "La",
   side: "Si",
   surround: "Su",
   bug: "B",
@@ -51,6 +53,8 @@ function renderPrimitive(
   context: RenderContext,
   element: CreatedElement
 ): RenderedElement {
+  if (typeof element === "string") return
+
   context._primitiveCount[element.type] = context._primitiveCount[element.type]
     ? context._primitiveCount[element.type] + 1
     : 1
@@ -87,6 +91,9 @@ function renderPrimitive(
     case "padding": {
       return createPaddingRenderedElement(context, element, id)
     }
+    case "layout": {
+      return createLayoutRenderedElement(context, element, id)
+    }
     default: {
       throw new Error(`Unknown Primitive: "${element.type}"`)
     }
@@ -116,6 +123,10 @@ export function render(
   context = ((context:any): RenderContext)
   element = ((element:any): CreatedElement)
   */
+
+  if (element.props.rotate === true && element.props.rotation === undefined) {
+    element.props.rotation = 90
+  }
 
   if (typeof element.type === "function") {
     render(context, element.type(element.props))

@@ -2,7 +2,7 @@
 
 import { RenderContext, RenderedElement } from "../types"
 import { render } from "../index.js"
-import { moveRenderedElement } from "../utils"
+import { moveRenderedElementTo } from "../utils"
 
 export default (
   context: RenderContext,
@@ -30,7 +30,7 @@ export default (
 
   let positionX = 0
   for (const childId of renderedChildrenIds) {
-    moveRenderedElement(
+    moveRenderedElementTo(
       context,
       childId,
       positionX,

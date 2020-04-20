@@ -1,12 +1,14 @@
 // @flow
 
 import { RenderContext, RenderedElement } from "../types"
+import { rotateRenderedElement } from "../utils"
 
 export default (
   context: RenderContext,
   element: RenderedElement,
   id: string
 ) => {
+  const { rotation = 0 } = element.props
   context.rendering[id] = {
     x: 0,
     y: 0,
@@ -40,4 +42,6 @@ export default (
     ],
     children: []
   }
+  if (rotation !== 0)
+    rotateRenderedElement(context, id, rotation, { skipText: true })
 }

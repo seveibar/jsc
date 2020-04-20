@@ -10,9 +10,9 @@ storiesOf("Resistor", module).add("Basic", () => {
   const elm = jsc("resistor")
   return (
     <>
+      <Renderer data={render(elm)} rootDrawingId="R1" />
       <pre>{JSON.stringify(elm, null, "  ")}</pre>
       <pre>{JSON.stringify(render(elm), null, "  ")}</pre>
-      <Renderer data={render(elm)} rootDrawingId="R1" />
     </>
   )
 })
