@@ -10,16 +10,17 @@ export default (
   id: string
 ) => {
   const { rotation = 0 } = element.props
-  const { left, right } = useConnections(element.props, {
+  const { left, right } = useConnections(id, element.props, {
     left: {
-      accessibleToParent: true,
-      aliases: []
+      exposed: true,
+      aliases: ["top"]
     },
     right: {
-      accessibleToParent: true,
-      aliases: []
+      exposed: true,
+      aliases: ["bottom"]
     }
   })
+
   context.rendering[id] = {
     x: 0,
     y: 0,
@@ -35,12 +36,14 @@ export default (
       left: {
         x: 0,
         y: 15,
-        color: "blue"
+        color: "blue",
+        connection: left
       },
       right: {
         x: 30,
         y: 15,
-        color: "blue"
+        color: "blue",
+        connection: right
       }
     },
     texts: [

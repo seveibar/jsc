@@ -1,12 +1,24 @@
 // @flow
 
 import { RenderContext, RenderedElement } from "../types"
+import useConnections from "../hooks/use-connections.js"
 
 export default (
   context: RenderContext,
   element: RenderedElement,
   id: string
 ) => {
+  const { left, right } = useConnections(id, element.props, {
+    left: {
+      exposed: true,
+      aliases: ["top"]
+    },
+    right: {
+      exposed: true,
+      aliases: ["bottom"]
+    }
+  })
+
   context.rendering[id] = {
     x: 0,
     y: 0,
@@ -23,12 +35,14 @@ export default (
       left: {
         x: 0,
         y: 15,
-        color: "blue"
+        color: "blue",
+        connection: left
       },
       right: {
         x: 40,
         y: 15,
-        color: "blue"
+        color: "blue",
+        connection: right
       }
     },
     texts: [

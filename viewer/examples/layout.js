@@ -11,7 +11,7 @@ storiesOf("Layout", module)
     const elm = jsc(
       "layout",
       {
-        A: jsc("linear", null, jsc("resistor"), jsc("resistor")),
+        A: jsc("capacitor"), // jsc("linear", null, jsc("resistor"), jsc("resistor")),
         B: jsc("capacitor"),
         C: jsc("capacitor", { rotate: true })
       },

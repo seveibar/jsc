@@ -5,9 +5,10 @@ import React from "react"
 const Drawing = ({}) => {}
 
 export default ({ data, rootDrawingId, padding = 0 }) => {
-  const rootDrawing = data[rootDrawingId]
+  const { rendering, connections = {} } = data
+  const rootDrawing = rendering[rootDrawingId]
 
-  const getDrawing = ({
+  const getComponentDrawings = ({
     x,
     y,
     width,
@@ -57,9 +58,77 @@ export default ({ data, rootDrawingId, padding = 0 }) => {
             height={10}
           />
         ))}
-        {children.map(c => getDrawing(data[c]))}
+        {children.map(c => getComponentDrawings(rendering[c]))}
       </g>
     )
+  }
+
+  const getAllPorts = (child, childId) => {
+    return Object.entries(child.ports || {})
+      .map(([name, { connection, x, y }]) => {
+        return { name, connection, x, y, componentId: childId }
+      })
+      .concat(
+        (child.children || []).flatMap(c => {
+          return getAllPorts(rendering[c], c)
+        })
+      )
+  }
+
+  const getConnectionDrawings = rootDrawing => {
+    const allPorts = getAllPorts(rootDrawing, rootDrawingId).map(p => ({
+      ...p,
+      cg: connections[p.connection],
+      absX: p.x + rendering[p.componentId].x,
+      absY: p.y + rendering[p.componentId].y
+    }))
+
+    const connectionGroups = Array.from(new Set(allPorts.map(p => p.cg)))
+    const comps = []
+
+    for (const cg of connectionGroups) {
+      const portsInCG = allPorts.filter(p => p.cg === cg)
+      if (portsInCG.length <= 1) continue
+      const isConnected = {}
+      for (let i = 0; i < portsInCG.length; i++) {
+        if (isConnected[i]) continue
+        let closestIndex = 0,
+          closestDistance = Infinity
+        for (let u = 0; u < portsInCG.length; u++) {
+          if (i === u) continue
+          const dx = portsInCG[u].absX - portsInCG[i].absX
+          const dy = portsInCG[u].absY - portsInCG[i].absY
+          const d = Math.sqrt(dx ** 2 + dy ** 2)
+          if (d < closestDistance) {
+            closestIndex = u
+            closestDistance = d
+          }
+        }
+
+        console.log(
+          portsInCG[i].absX,
+          portsInCG[i].absY,
+          portsInCG[closestIndex].absX,
+          portsInCG[closestIndex].absY
+        )
+
+        comps.push(
+          <line
+            x1={portsInCG[i].absX}
+            y1={portsInCG[i].absY}
+            x2={portsInCG[closestIndex].absX}
+            y2={portsInCG[closestIndex].absY}
+            stroke="red"
+            strokeWidth={2}
+            fill="none"
+          />
+        )
+
+        isConnected[closestIndex] = true
+        isConnected[i] = true
+      }
+    }
+    return comps
   }
 
   return (
@@ -69,7 +138,8 @@ export default ({ data, rootDrawingId, padding = 0 }) => {
         height={rootDrawing.height + rootDrawing.y + padding * 2}
       >
         <g transform={`translate(${padding} ${padding})`}>
-          {getDrawing(rootDrawing)}
+          {getComponentDrawings(rootDrawing)}
+          {getConnectionDrawings(rootDrawing)}
         </g>
       </svg>
     </div>

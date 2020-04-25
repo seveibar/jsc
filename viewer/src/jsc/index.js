@@ -73,28 +73,36 @@ function renderPrimitive(
 
   switch (element.type) {
     case "linear": {
-      return createLinearRenderedElement(context, element, id)
+      createLinearRenderedElement(context, element, id)
+      break
     }
     case "capacitor": {
-      return createCapacitorRenderedElement(context, element, id)
+      createCapacitorRenderedElement(context, element, id)
+      break
     }
     case "resistor": {
-      return createResistorRenderedElement(context, element, id)
+      createResistorRenderedElement(context, element, id)
+      break
     }
     case "side": {
-      return createSideRenderedElement(context, element, id)
+      createSideRenderedElement(context, element, id)
+      break
     }
     case "surround": {
-      return createSurroundRenderedElement(context, element, id)
+      createSurroundRenderedElement(context, element, id)
+      break
     }
     case "bug": {
-      return createBugRenderedElement(context, element, id)
+      createBugRenderedElement(context, element, id)
+      break
     }
     case "padding": {
-      return createPaddingRenderedElement(context, element, id)
+      createPaddingRenderedElement(context, element, id)
+      break
     }
     case "layout": {
-      return createLayoutRenderedElement(context, element, id)
+      createLayoutRenderedElement(context, element, id)
+      break
     }
     default: {
       throw new Error(`Unknown Primitive: "${element.type}"`)
@@ -118,8 +126,7 @@ export function render(
       _width: 0,
       _height: 0,
       _primitiveCount: {},
-      _lastRenderedElementId: "root",
-      _connections: {}
+      _lastRenderedElementId: "root"
     }: RenderContext)
     isRoot = true
   }
@@ -143,9 +150,10 @@ export function render(
   }
 
   if (isRoot) {
+    console.log(context)
   }
 
-  return context.rendering
+  return context
 }
 
 export default createElement

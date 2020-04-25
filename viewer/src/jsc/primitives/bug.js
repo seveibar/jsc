@@ -1,6 +1,7 @@
 // @flow
 
 import { RenderContext, RenderedElement } from "../types"
+import { useConnections } from "../hooks/use-connections.js"
 
 const rowHeight = 30
 const bugWidth = 80
@@ -16,6 +17,17 @@ export default (
   if (!ports) throw new Error(`Bug requires "ports"`)
   if (!label) throw new Error(`Bug requires "label"`)
 
+  const useConnectionDef = {}
+  for (const o of order) {
+    if (o === null) continue
+    useConnectionDef[o] = {
+      exposed: true,
+      aliases: [`p${o}`]
+    }
+  }
+
+  const connIds = useConnections(id, element.props, useConnectionDef)
+
   const rowCount = Math.ceil(order.length / 2)
   const bugHeight = rowHeight * rowCount
 
@@ -29,7 +41,8 @@ export default (
     renderedPorts[o] = {
       x: left ? linePadding - 15 : bugWidth + linePadding + 15,
       y: rowi * rowHeight + linePadding + rowHeight / 2,
-      color: "blue"
+      color: "blue",
+      connection: connIds[o]
     }
   }
 

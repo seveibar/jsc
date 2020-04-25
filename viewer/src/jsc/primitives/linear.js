@@ -3,6 +3,7 @@
 import { RenderContext, RenderedElement } from "../types"
 import { render } from "../index.js"
 import { moveRenderedElementTo } from "../utils"
+import { useConnectionMedium } from "../hooks/use-connections.js"
 
 export default (
   context: RenderContext,
@@ -13,9 +14,16 @@ export default (
   const { children } = element.props
   context._path.push(id)
 
+  const { solveMedium } = useConnectionMedium((a, b) => {
+    if (a.componentIndex === b.componentIndex - 1) {
+      if (a.name === "right" && b.name === "left") return true
+    }
+  })
+
   for (const child of children) {
     render(context, child)
   }
+  solveMedium()
 
   const renderedChildrenIds =
     context._renderPathElements[context._path.join(".")]

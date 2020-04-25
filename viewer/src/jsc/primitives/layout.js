@@ -3,6 +3,7 @@
 import { RenderContext, RenderedElement } from "../types"
 import { render } from "../index.js"
 import { moveRenderedElementTo } from "../utils"
+import { useConnectionMedium } from "../hooks/use-connections"
 
 const isWhitespace = s => !s || /\s/.test(s)
 
@@ -33,6 +34,11 @@ export default (
   // Render children to determine size
   const { children } = element.props
   context._path.push(id)
+
+  const { solveMedium } = useConnectionMedium((a, b) => {
+    console.log("medium", a, b)
+    return true
+  })
 
   const layoutString = children[0]
 
@@ -105,6 +111,8 @@ export default (
   }
   const totalWidth = currentX
   const totalHeight = currentY
+
+  solveMedium()
 
   context.rendering[id] = ({
     x: 0,
