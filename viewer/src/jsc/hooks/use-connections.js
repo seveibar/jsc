@@ -31,34 +31,32 @@ export const useNewConnections = (n: number | Array<string>) => {
 /*
   This is a layout, linear or box that gives child connections a way to connect
 
-  the connectionGraph is specified using render order. To express a linear
-  component with 3 children, you would write...
-  useConnectionMedium([[1],[0,2],[1]])
-
-  We could also have the graph be explicitly defined as a function. This is
-  a better representation for n to n connections.
-
-  It's actually possible to create ambiguous connection graphs which is bad
-  unless the resolution method is very obvious.
-
   Returns a function that solves for the connections within the medium
 */
 type ConnectionInfo = {|
   componentIndex: number,
   exposed?: boolean,
-  name: string
+  name: string,
+  numConnected?: number,
+  connName?: string
 |}
-export const useConnectionMedium = (
-  isConnectedFn: (a: ConnectionInfo, b: ConnectionInfo) => boolean
-) => {
+export const useConnectionMedium = ({
+  isConnectedFn = () => false,
+  isExposedFn = () => false
+}: {
+  isConnectedFn: (a: ConnectionInfo, b: ConnectionInfo) => boolean,
+  isExposedFn: (a: ConnectionInfo) => boolean
+}) => {
   const context = useRenderContext()
 
   if (!context._mediums) context._mediums = {}
   const mediumPath = context._path.join(".")
   context._mediums[mediumPath] = {
     isConnectedFn,
+    isExposedFn,
     notExplicitlyConnected: [],
     connectionDefinitions: {},
+    exposedConnections: {},
     solved: false
   }
 
@@ -66,10 +64,25 @@ export const useConnectionMedium = (
     solveMedium: () => {
       const {
         notExplicitlyConnected,
-        connectionDefinitions
+        connectionDefinitions,
+        exposedConnections = {}
       } = context._mediums[mediumPath]
       const { connections } = context
 
+      const childMediumConnections = []
+      // look for solved child mediums
+      for (const otherMediumPath in context._mediums) {
+        if (otherMediumPath === mediumPath) continue
+        if (otherMediumPath.startsWith(mediumPath)) continue
+        // context._mediums[otherMediumPath]
+        console.log({ otherMediumPath })
+      }
+
+      const availableConnections = notExplicitlyConnected.concat(
+        childMediumConnections
+      )
+
+      // SOLVE looking at children
       let changeMade = true,
         iters = 0
       while (changeMade && iters < 10) {
@@ -92,6 +105,22 @@ export const useConnectionMedium = (
         throw new Error(
           `Solving medium took more than 10 iterations. Is isConnectedFn deterministic?`
         )
+      }
+
+      for (const a of notExplicitlyConnected) {
+        const connId = connections[a]
+        const numConnections = Object.values(connections).reduce(
+          (acc, cid) => acc + (cid === connId ? 1 : 0),
+          0
+        )
+        const exposedConnObj = {
+          ...connectionDefinitions[a],
+          connName: a,
+          numConnections
+        }
+        if (isExposedFn(exposedConnObj)) {
+          exposedConnections[a] = exposedConnObj
+        }
       }
 
       context._mediums[mediumPath].solved = true
@@ -135,36 +164,17 @@ export const useConnections = (
     (context._renderPathElements[renderPath] || []).length - 1
 
   const medium = (context._mediums || {})[renderPath]
-  // const mediumRenderedChildrenSoFar = context._renderPathElements[
-  //   renderPath
-  // ].filter(Boolean)
-  // .map(
-  //   elmId =>
-  //     context.rendering[elmId] && { ...context.rendering[elmId], id: elmId }
-  // )
-  // .filter(Boolean)
 
   if (!context.connections) context.connections = {}
-
-  // if (medium) {
-  //   medium.connections[id] = {}
-  //   medium.connectionDefinitions[id] = conns
-  // }
 
   const ret = {}
   for (let connName in conns) {
     const { exposed = false } = conns[connName]
     if (props[connName]) {
       // TODO check aliases
-      // ret[connName] = props[connName]
       ret[connName] = `${id}_${connName}`
       context.connections[`${id}_${connName}`] = props[connName]
     } else if (exposed && medium) {
-      // const currentElmIndex = mediumRenderedChildrenSoFar.length + 1
-      // TODO check if i'm connected to anything in the medium
-      // iterate over all rendered components, see if I'm connected to it
-
-      // Search medium for compatible connections
       context.connections[`${id}_${connName}`] = getNextConnectionId(
         context,
         id
@@ -176,36 +186,6 @@ export const useConnections = (
       }
       medium.notExplicitlyConnected.push(`${id}_${connName}`)
       ret[connName] = `${id}_${connName}`
-      // for (let i = 0; i < mediumRenderedChildrenSoFar.length; i++) {
-      //   if (medium.isConnectedFn(i, currentElmIndex)) {
-      //     // check if the current element and the connecting element share any
-      //     // connections
-      //
-      //   }
-      // }
-
-      /*
-       Okay, a little bedtime note:
-       So we're collecting all the connections together that belong to a parent,
-       this is good. But there's much more to do:
-
-       Think about the linear case. You can't just connect to ANY connection in
-       the parent. You can only connect to adjacent elements. Generalizing
-       further, you could construct a relationship table (or graph) that shows
-       what elements can connect to which other elements. The parent should
-       probably explicitly initialize this with a hook or context. The idea is
-       the parent, be it linear or layout or box, would determine who can connect
-       to who. For a box, anybody can connect to anybody. For linear, adjacent
-       elements. For layout, anything with lines connecting them.
-      */
-      // Instead of tracking all the 'parent accessible' connections, just
-      // search for a compatible connection in the parent. If not found,
-      // create an "empty" connection so that the next useConnection can search
-      // for the created connection
-      // context._connectionPathElements[renderPath].push({
-      //   connName,
-      //   ...conns[connName]
-      // })
     } else {
       context.connections[`${id}_${connName}`] = getNextConnectionId(
         context,

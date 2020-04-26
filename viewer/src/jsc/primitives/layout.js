@@ -35,11 +35,6 @@ export default (
   const { children } = element.props
   context._path.push(id)
 
-  const { solveMedium } = useConnectionMedium((a, b) => {
-    console.log("medium", a, b)
-    return true
-  })
-
   const layoutString = children[0]
 
   if (typeof layoutString !== "string")
@@ -53,6 +48,14 @@ export default (
   const gridCompIds = Array.from(new Set(gridRep.flatMap(r => r))).filter(s =>
     /[a-zA-Z]/.test(s)
   )
+
+  const { solveMedium } = useConnectionMedium({
+    isConnectedFn: (a, b) => {
+      console.log("medium", a, b)
+
+      return true
+    }
+  })
 
   for (const compId of gridCompIds) {
     const compChild = element.props[compId]

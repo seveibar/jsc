@@ -14,9 +14,11 @@ export default (
   const { children } = element.props
   context._path.push(id)
 
-  const { solveMedium } = useConnectionMedium((a, b) => {
-    if (a.componentIndex === b.componentIndex - 1) {
-      if (a.name === "right" && b.name === "left") return true
+  const { solveMedium } = useConnectionMedium({
+    isConnectedFn: (a, b) => {
+      if (a.componentIndex === b.componentIndex - 1) {
+        if (a.name === "right" && b.name === "left") return true
+      }
     }
   })
 

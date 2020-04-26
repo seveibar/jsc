@@ -89,44 +89,84 @@ export default ({ data, rootDrawingId, padding = 0 }) => {
     for (const cg of connectionGroups) {
       const portsInCG = allPorts.filter(p => p.cg === cg)
       if (portsInCG.length <= 1) continue
+
       const isConnected = {}
-      for (let i = 0; i < portsInCG.length; i++) {
-        if (isConnected[i]) continue
-        let closestIndex = 0,
+      const inTree = [portsInCG[0]]
+      const outOfTree = portsInCG.slice(1)
+
+      // Prim's Algorithm to connect all nodes
+      // TODO optimize
+      while (inTree.length < portsInCG.length) {
+        let closestOut = 0,
+          closestIn = 0,
           closestDistance = Infinity
-        for (let u = 0; u < portsInCG.length; u++) {
-          if (i === u) continue
-          const dx = portsInCG[u].absX - portsInCG[i].absX
-          const dy = portsInCG[u].absY - portsInCG[i].absY
-          const d = Math.sqrt(dx ** 2 + dy ** 2)
-          if (d < closestDistance) {
-            closestIndex = u
-            closestDistance = d
+        for (let i = 0; i < outOfTree.length; i++) {
+          for (let u = 0; u < inTree.length; u++) {
+            const dx = inTree[u].absX - outOfTree[i].absX
+            const dy = inTree[u].absY - outOfTree[i].absY
+            const d = Math.sqrt(dx ** 2 + dy ** 2)
+            if (d < closestDistance) {
+              closestOut = i
+              closestIn = u
+              closestDistance = d
+            }
           }
         }
 
-        console.log(
-          portsInCG[i].absX,
-          portsInCG[i].absY,
-          portsInCG[closestIndex].absX,
-          portsInCG[closestIndex].absY
-        )
+        const [inNode, outNode] = [inTree[closestIn], outOfTree[closestOut]]
+        inTree.push(outNode)
+        outOfTree.splice(closestOut, 1)
 
         comps.push(
           <line
-            x1={portsInCG[i].absX}
-            y1={portsInCG[i].absY}
-            x2={portsInCG[closestIndex].absX}
-            y2={portsInCG[closestIndex].absY}
-            stroke="red"
+            x1={inNode.absX}
+            y1={inNode.absY}
+            x2={outNode.absX}
+            y2={outNode.absY}
+            stroke="green"
             strokeWidth={2}
             fill="none"
           />
         )
-
-        isConnected[closestIndex] = true
-        isConnected[i] = true
       }
+
+      //   for (let i = 0; i < portsInCG.length; i++) {
+      //     if (isConnected[i]) continue
+      //     let closestIndex = 0,
+      //       closestDistance = Infinity
+      //     for (let u = 0; u < portsInCG.length; u++) {
+      //       if (i === u) continue
+      //       const dx = portsInCG[u].absX - portsInCG[i].absX
+      //       const dy = portsInCG[u].absY - portsInCG[i].absY
+      //       const d = Math.sqrt(dx ** 2 + dy ** 2)
+      //       if (d < closestDistance) {
+      //         closestIndex = u
+      //         closestDistance = d
+      //       }
+      //     }
+      //
+      //     console.log(
+      //       portsInCG[i].absX,
+      //       portsInCG[i].absY,
+      //       portsInCG[closestIndex].absX,
+      //       portsInCG[closestIndex].absY
+      //     )
+      //
+      //     comps.push(
+      //       <line
+      //         x1={portsInCG[i].absX}
+      //         y1={portsInCG[i].absY}
+      //         x2={portsInCG[closestIndex].absX}
+      //         y2={portsInCG[closestIndex].absY}
+      //         stroke="green"
+      //         strokeWidth={2}
+      //         fill="none"
+      //       />
+      //     )
+      //
+      //     isConnected[closestIndex] = true
+      //     isConnected[i] = true
+      //   }
     }
     return comps
   }
