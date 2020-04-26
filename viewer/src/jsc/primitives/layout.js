@@ -6,6 +6,8 @@ import { moveRenderedElementTo } from "../utils"
 import { useConnectionMedium } from "../hooks/use-connections"
 
 const isWhitespace = s => !s || /\s/.test(s)
+const isNode = s => /[a-zA-Z0-9]/.test(s)
+const isConnector = s => !isWhitespace(s) && !isNode(s)
 
 const trimMat = mat => {
   const initialTotalColumns = Math.max(...mat.map(r => r.length))
@@ -22,6 +24,53 @@ const trimMat = mat => {
   }
 
   return mat
+}
+
+const getPosFromMat = (mat, node) => {
+  let nodePos = null
+  for (let i = 0; i < mat.length; i++) {
+    for (let u = 0; u < mat[0].length; u++) {
+      if (mat[i][u] === node) {
+        nodePos = [i, u]
+        i = mat.length
+        break
+      }
+    }
+  }
+  return nodePos
+}
+
+const getConnectionsFromMat = (mat, node) => {
+  const nodePos = getPosFromMat(mat, node)
+  if (!nodePos) return []
+  const connections = []
+  const traversed = {}
+  traversed[nodePos] = true
+
+  const traverse = pos => {
+    const surroundings = [
+      [pos[0] - 1, pos[1]],
+      [pos[0] + 1, pos[1]],
+      [pos[0], pos[1] - 1],
+      [pos[0], pos[1] + 1]
+    ].filter(([r, c]) => {
+      if (r < 0 || r >= mat.length) return false
+      if (c < 0 || c >= mat[0].length) return false
+      if (traversed[[r, c]]) return false
+      return true
+    })
+    for (let pos of surroundings) {
+      traversed[pos] = true
+      const char = mat[pos[0]][pos[1]]
+      if (isConnector(char)) {
+        traverse(pos)
+      } else if (isNode(char)) {
+        connections.push(char)
+      }
+    }
+  }
+  traverse(nodePos)
+  return connections
 }
 
 const MIN_GRID_SIZE = 20
@@ -45,15 +94,62 @@ export default (
   const gridRep = trimMat(layoutString.split("\n").map(l => l.split("")))
 
   // Find all the children identifiers
-  const gridCompIds = Array.from(new Set(gridRep.flatMap(r => r))).filter(s =>
-    /[a-zA-Z]/.test(s)
+  const gridCompIds = Array.from(new Set(gridRep.flatMap(r => r))).filter(
+    isNode
   )
+
+  const gridIdPos = {}
+  for (const gridCompId of gridCompIds) {
+    gridIdPos[gridCompId] = getPosFromMat(gridRep, gridCompId)
+  }
+
+  const gridIdConnectionList = {}
+  for (const gridCompId of gridCompIds) {
+    gridIdConnectionList[gridCompId] = getConnectionsFromMat(
+      gridRep,
+      gridCompId
+    )
+  }
 
   const { solveMedium } = useConnectionMedium({
     isConnectedFn: (a, b) => {
-      console.log("medium", a, b)
+      if (a.componentIndex === b.componentIndex) return false
 
-      return true
+      const [A, B] = [
+        gridCompIds[a.componentIndex],
+        gridCompIds[b.componentIndex]
+      ]
+
+      const [Ay, Ax] = gridIdPos[A]
+      const [By, Bx] = gridIdPos[B]
+
+      const componentsConnected = gridIdConnectionList[A].includes(B)
+
+      if (!componentsConnected) return false
+
+      if (Ax < Bx) {
+        if (a.name === "right" && b.name === "left") {
+          return true
+        }
+      } else if (Ax > Bx) {
+        if (a.name === "left" && b.name === "right") {
+          return true
+        }
+      }
+
+      if (Ay < By) {
+        if (a.name === "right" && b.name === "left") {
+          return true
+        }
+      } else if (Ay > By) {
+        if (a.name === "left" && b.name === "right") {
+          return true
+        }
+      }
+
+      if (a.name === "left" || a.name === "right") return false
+
+      return false
     }
   })
 
