@@ -19,7 +19,10 @@ export default (
       if (a.componentIndex === b.componentIndex - 1) {
         if (a.name === "right" && b.name === "left") return true
       }
-    }
+    },
+    isExposedFn: c =>
+      (c.componentIndex === 0 && c.name === "left") ||
+      (c.componentIndex === children.length - 1 && c.name === "right")
   })
 
   for (const child of children) {

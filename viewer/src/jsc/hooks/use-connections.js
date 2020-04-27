@@ -41,9 +41,11 @@ type ConnectionInfo = {|
   connName?: string
 |}
 export const useConnectionMedium = ({
+  id: mediumId,
   isConnectedFn = () => false,
   isExposedFn = () => false
 }: {
+  id: string,
   isConnectedFn: (a: ConnectionInfo, b: ConnectionInfo) => boolean,
   isExposedFn: (a: ConnectionInfo) => boolean
 }) => {
@@ -56,7 +58,6 @@ export const useConnectionMedium = ({
     isExposedFn,
     notExplicitlyConnected: [],
     connectionDefinitions: {},
-    exposedConnections: {},
     solved: false
   }
 
@@ -64,23 +65,42 @@ export const useConnectionMedium = ({
     solveMedium: () => {
       const {
         notExplicitlyConnected,
-        connectionDefinitions,
-        exposedConnections = {}
+        connectionDefinitions
       } = context._mediums[mediumPath]
       const { connections } = context
 
-      const childMediumConnections = []
-      // look for solved child mediums
-      for (const otherMediumPath in context._mediums) {
-        if (otherMediumPath === mediumPath) continue
-        if (otherMediumPath.startsWith(mediumPath)) continue
-        // context._mediums[otherMediumPath]
-        console.log({ otherMediumPath })
-      }
+      // const childMediumConnections = []
+      // // look for solved child mediums
+      // for (const otherMediumPath in context._mediums) {
+      //   if (otherMediumPath === mediumPath) continue
+      //   if (!otherMediumPath.startsWith(mediumPath)) continue
+      //   // context._mediums[otherMediumPath]
+      //
+      //   const childMedium = context._mediums[otherMediumPath]
+      //
+      //   // Add each non-conflicting connection to childMediumConnections
+      //   // and connectionDefinitions, and derive new component index based
+      //   // on medium position in rendered children
+      //   const otherMediumComponentId = otherMediumPath.split(".").pop()
+      //
+      //
+      //
+      //   // childMediumConnections.push(...childMedium.exposed)
+      //   console.log(
+      //     mediumPath,
+      //     otherMediumPath,
+      //     componentIndex
+      //   )
+      //   // console.log(mediumPath, {
+      //   //   otherMediumPath,
+      //   //   otherMedium: context._mediums[otherMediumPath]
+      //   // })
+      // }
 
-      const availableConnections = notExplicitlyConnected.concat(
-        childMediumConnections
-      )
+      const availableConnections = notExplicitlyConnected
+      // .concat(
+      //   childMediumConnections
+      // )
 
       // SOLVE looking at children
       let changeMade = true,
@@ -107,19 +127,44 @@ export const useConnectionMedium = ({
         )
       }
 
-      for (const a of notExplicitlyConnected) {
-        const connId = connections[a]
-        const numConnections = Object.values(connections).reduce(
-          (acc, cid) => acc + (cid === connId ? 1 : 0),
-          0
-        )
-        const exposedConnObj = {
-          ...connectionDefinitions[a],
-          connName: a,
-          numConnections
-        }
-        if (isExposedFn(exposedConnObj)) {
-          exposedConnections[a] = exposedConnObj
+      const parentMediumPath = context._path.slice(0, -1).join(".")
+      const parentMedium = context._mediums[parentMediumPath]
+
+      if (parentMedium) {
+        for (const connName of notExplicitlyConnected) {
+          const connId = connections[connName]
+          const numConnections = Object.values(connections).reduce(
+            (acc, cid) => acc + (cid === connId ? 1 : 0),
+            0
+          )
+          const exposedConnObj = {
+            ...connectionDefinitions[connName],
+            numConnections
+          }
+          console.log(
+            "checking if is exposed",
+            exposedConnObj,
+            mediumPath,
+            parentMediumPath,
+            isExposedFn(exposedConnObj),
+            connName,
+            parentMedium.notExplicitlyConnected,
+            !parentMedium.notExplicitlyConnected.includes(connName)
+          )
+
+          if (
+            isExposedFn(exposedConnObj) &&
+            !parentMedium.notExplicitlyConnected.includes(connName)
+          ) {
+            console.log(parentMediumPath, exposedConnObj)
+            // exposedConnections[connName] = exposedConnObj
+            parentMedium.connectionDefinitions[connName] = {
+              ...exposedConnObj,
+              componentIndex:
+                (context._renderPathElements[parentMediumPath] || []).length - 1
+            }
+            parentMedium.notExplicitlyConnected.push(connName)
+          }
         }
       }
 
@@ -137,8 +182,8 @@ export const getNextConnectionId = (context, id) => {
     {}
   )
   for (let i = 0; ; i++) {
-    if (!connIdMap[`${id}_${i}`]) {
-      return `${id}_${i}`
+    if (!connIdMap[`cgid_${id}_${i}`]) {
+      return `cgid_${id}_${i}`
     }
   }
 }
