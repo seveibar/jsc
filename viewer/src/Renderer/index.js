@@ -19,47 +19,49 @@ export default ({ data, rootDrawingId, padding = 0 }) => {
     children = []
   }) => {
     return (
-      <g transform={`translate(${x},${y})`}>
-        {paths.map((p, i) => (
-          <path
-            key={i}
-            fill="none"
-            strokeWidth={2 * (p.strokeWidth || 1)}
-            stroke={p.stroke || "red"}
-            d={p.d}
-          />
-        ))}
-        {texts.map((t, i) => (
-          <text
-            key={i}
-            style={{
-              fontWeight: "bold",
-              fontFamily: "sans-serif",
-              fontSize: 14
-            }}
-            fill={t.fill || "red"}
-            x={t.x}
-            y={t.y}
-          >
-            {t.text}
-          </text>
-        ))}
-        {Object.entries(ports).map(([name, { x, y, color }]) => (
-          <rect
-            style={{
-              stroke: color,
-              strokeWidth: 2,
-              fill: "none"
-            }}
-            key={name}
-            x={x - 5}
-            y={y - 5}
-            width={10}
-            height={10}
-          />
-        ))}
+      <>
+        <g key={"tl"} transform={`translate(${x},${y})`}>
+          {paths.map((p, i) => (
+            <path
+              key={i}
+              fill="none"
+              strokeWidth={2 * (p.strokeWidth || 1)}
+              stroke={p.stroke || "red"}
+              d={p.d}
+            />
+          ))}
+          {texts.map((t, i) => (
+            <text
+              key={i}
+              style={{
+                fontWeight: "bold",
+                fontFamily: "sans-serif",
+                fontSize: 14
+              }}
+              fill={t.fill || "red"}
+              x={t.x}
+              y={t.y}
+            >
+              {t.text}
+            </text>
+          ))}
+          {Object.entries(ports).map(([name, { x, y, color }]) => (
+            <rect
+              style={{
+                stroke: color,
+                strokeWidth: 2,
+                fill: "none"
+              }}
+              key={name}
+              x={x - 5}
+              y={y - 5}
+              width={10}
+              height={10}
+            />
+          ))}
+        </g>
         {children.map(c => getComponentDrawings(rendering[c]))}
-      </g>
+      </>
     )
   }
 
@@ -129,44 +131,6 @@ export default ({ data, rootDrawingId, padding = 0 }) => {
           />
         )
       }
-
-      //   for (let i = 0; i < portsInCG.length; i++) {
-      //     if (isConnected[i]) continue
-      //     let closestIndex = 0,
-      //       closestDistance = Infinity
-      //     for (let u = 0; u < portsInCG.length; u++) {
-      //       if (i === u) continue
-      //       const dx = portsInCG[u].absX - portsInCG[i].absX
-      //       const dy = portsInCG[u].absY - portsInCG[i].absY
-      //       const d = Math.sqrt(dx ** 2 + dy ** 2)
-      //       if (d < closestDistance) {
-      //         closestIndex = u
-      //         closestDistance = d
-      //       }
-      //     }
-      //
-      //     console.log(
-      //       portsInCG[i].absX,
-      //       portsInCG[i].absY,
-      //       portsInCG[closestIndex].absX,
-      //       portsInCG[closestIndex].absY
-      //     )
-      //
-      //     comps.push(
-      //       <line
-      //         x1={portsInCG[i].absX}
-      //         y1={portsInCG[i].absY}
-      //         x2={portsInCG[closestIndex].absX}
-      //         y2={portsInCG[closestIndex].absY}
-      //         stroke="green"
-      //         strokeWidth={2}
-      //         fill="none"
-      //       />
-      //     )
-      //
-      //     isConnected[closestIndex] = true
-      //     isConnected[i] = true
-      //   }
     }
     return comps
   }

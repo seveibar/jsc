@@ -28,14 +28,13 @@ export default (
   solveMedium()
 
   const renderedChildrenIds =
-    context._renderPathElements[context._path.join(".")]
+    context._renderPathElements[context._path.join(".")] || []
   const totalWidth = renderedChildrenIds.reduce(
     (acc, a) => acc + context.rendering[a].width,
     0
   )
-  const totalHeight = renderedChildrenIds.reduce(
-    (acc, a) => acc + context.rendering[a].height,
-    0
+  const totalHeight = Math.max(
+    ...renderedChildrenIds.map(a => context.rendering[a].height)
   )
 
   let positionX = 0
@@ -44,7 +43,7 @@ export default (
       context,
       childId,
       positionX,
-      totalHeight / 2 - context.rendering[childId].height
+      (context.rendering[childId].height - totalHeight) / 2
     )
     positionX += context.rendering[childId].width
   }
