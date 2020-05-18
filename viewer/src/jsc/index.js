@@ -4,7 +4,7 @@ import type {
   RenderContext,
   RenderedElement,
   CreatedElement,
-  Rendering
+  Rendering,
 } from "./types"
 
 import createLinearRenderedElement from "./primitives/linear.js"
@@ -13,6 +13,7 @@ import createCapacitorRenderedElement from "./primitives/capacitor.js"
 import createSideRenderedElement from "./primitives/side.js"
 import createSurroundRenderedElement from "./primitives/surround.js"
 import createBugRenderedElement from "./primitives/bug.js"
+import createGndRenderedElement from "./primitives/gnd.js"
 import createPaddingRenderedElement from "./primitives/padding.js"
 import createLayoutRenderedElement from "./primitives/layout.js"
 
@@ -28,8 +29,8 @@ export function createElement(
     type,
     props: {
       ...props,
-      children
-    }
+      children,
+    },
   }
 }
 
@@ -47,7 +48,8 @@ const primitivePrefixes = {
   side: "Si",
   surround: "Su",
   bug: "B",
-  padding: "P"
+  padding: "P",
+  gnd: "Gnd",
 }
 
 function renderPrimitive(
@@ -104,6 +106,10 @@ function renderPrimitive(
       createLayoutRenderedElement(context, element, id)
       break
     }
+    case "gnd": {
+      createGndRenderedElement(context, element, id)
+      break
+    }
     default: {
       throw new Error(`Unknown Primitive: "${element.type}"`)
     }
@@ -126,7 +132,7 @@ export function render(
       _width: 0,
       _height: 0,
       _primitiveCount: {},
-      _lastRenderedElementId: "root"
+      _lastRenderedElementId: "root",
     }: RenderContext)
     isRoot = true
   }
