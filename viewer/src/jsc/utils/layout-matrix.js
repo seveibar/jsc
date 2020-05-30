@@ -23,29 +23,32 @@ export const trimMat = (mat) => {
     }
   }
 
+  // Make sure every row is the same length
+  const longestNumberOfColumns = Math.max(...mat.map((r) => r.length))
+  for (const row of mat) {
+    while (row.length < longestNumberOfColumns) row.push(" ")
+  }
+
   return mat
 }
 
-export const getPosFromMat = (mat, node) => {
-  let nodePos = null
+export const getPositionsFromMat = (mat, node) => {
+  let nodePositions = []
   for (let i = 0; i < mat.length; i++) {
     for (let u = 0; u < mat[0].length; u++) {
       if (mat[i][u] === node) {
-        nodePos = [i, u]
-        i = mat.length
-        break
+        nodePositions.push([i, u])
       }
     }
   }
-  return nodePos
+  return nodePositions
 }
 
 export const getConnectionsFromMat = (mat, node) => {
-  const nodePos = getPosFromMat(mat, node)
-  if (!nodePos) return []
-  const connections = []
+  const nodePositions = getPositionsFromMat(mat, node)
+  if (nodePositions.length === 0) return []
+  const connections = new Set()
   const traversed = {}
-  traversed[nodePos] = true
 
   const traverse = (pos) => {
     const surroundings = [
@@ -65,10 +68,18 @@ export const getConnectionsFromMat = (mat, node) => {
       if (isConnector(char)) {
         traverse(spos)
       } else if (isNode(char)) {
-        connections.push(char)
+        connections.add(char)
       }
     }
   }
-  traverse(nodePos)
-  return connections
+
+  for (const nodePos of nodePositions) {
+    traversed[nodePos] = true
+    traverse(nodePos)
+  }
+
+  // Shouldn't return self as connection
+  connections.delete(node)
+
+  return Array.from(connections)
 }
