@@ -1,7 +1,7 @@
 // @flow
 
 import {
-  convertBoxBugToDenseLetter,
+  convertBoxStyleToDenseLetter,
   getGridRepresentation,
   getConnectionsFromMat,
 } from "./layout-matrix"
@@ -22,7 +22,7 @@ test("should be able to interpret dense letter syntax", () => {
 
 test("should be able to convert box-style bug to dense letter", () => {
   expect(
-    convertBoxBugToDenseLetter(
+    convertBoxStyleToDenseLetter(
       getGridRepresentation(`
         --------
     A - |      | - C

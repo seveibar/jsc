@@ -1,10 +1,133 @@
 // @flow weak
 
+import cloneDeep from "lodash/cloneDeep"
+
 export const isWhitespace = (s) => !s || /\s/.test(s)
 export const isNode = (s) => /[a-zA-Z0-9]/.test(s)
 export const isConnector = (s) => !isWhitespace(s) && !isNode(s)
 
-export const convertBoxBugToDenseLetter = (layoutString) => {}
+/**
+Converts Box Style:
+    --------
+A - |      | - C
+    |  B   |
+    |      | - D
+    --------
+Into Dense Letter:
+    BBBBBBBB
+A - BBBBBBBB - C
+    BBBBBBBB
+    BBBBBBBB - D
+    BBBBBBBB
+**/
+export const convertBoxStyleToDenseLetter = (grid) => {
+  // 1) find all horizontal continuous lines, note the position and width
+  const horizontalContLines = []
+  for (let rowi = 0; rowi < grid.length; rowi++) {
+    const row = grid[rowi]
+    let currentLineStart = null
+    let currentLineWidth = 0
+    for (let coli = 0; coli < row.length; coli++) {
+      if (isConnector(row[coli])) {
+        if (currentLineStart === null) {
+          currentLineStart = coli
+          currentLineWidth = 1
+        } else {
+          currentLineWidth += 1
+        }
+      } else {
+        // Width must be greater than 2
+        if (currentLineWidth > 2) {
+          horizontalContLines.push({
+            rowi,
+            coli: currentLineStart,
+            width: currentLineWidth,
+          })
+        }
+        currentLineWidth = 0
+        currentLineStart = null
+      }
+    }
+  }
+  // 2) Filter to those with a matching horizontal line with vertical connecting
+  //    lines, call the pair of horizontal lines matching a "box"
+  let connectionBoxes = []
+  for (let i = 0; i < horizontalContLines.length; i++) {
+    // Find next possible pair
+    let matchingLine = null
+    for (let u = i + 1; u < horizontalContLines.length; u++) {
+      const [li, lu] = [horizontalContLines[i], horizontalContLines[u]]
+      if (
+        li.width === lu.width &&
+        li.coli == lu.coli &&
+        lu.rowi > li.rowi + 2
+      ) {
+        // Check if vertical line exists
+        let verticalLineExists = true
+        for (let k = i + 1; k < u; k++) {
+          if (
+            !isConnector(grid[li.coli][k]) ||
+            !isConnector(grid[li.coli + li.width][k])
+          ) {
+            verticalLineExists = false
+            break
+          }
+        }
+        if (verticalLineExists) {
+          connectionBoxes.push({
+            rowi: li.rowi,
+            coli: li.coli,
+            width: li.width,
+            height: lu.rowi - li.rowi + 1,
+            node: null,
+          })
+        }
+      }
+    }
+  }
+  // 3) Explore inside, make sure it contains exactly one Node
+  for (const box of connectionBoxes) {
+    for (
+      let rowi = box.rowi + 1;
+      rowi < box.rowi + box.height - 1 && !box.invalid;
+      rowi++
+    ) {
+      for (
+        let coli = box.coli + 1;
+        coli < box.coli + box.width - 1 && !box.invalid;
+        coli++
+      ) {
+        if (isConnector(grid[rowi][coli])) {
+          box.invalidReason = `no inside connectors ${rowi}, ${coli}`
+          box.invalid = true
+          break
+        }
+        if (isNode(grid[rowi][coli])) {
+          if (box.node) {
+            box.invalidReason = "only one node per box"
+            box.invalid = true
+            break
+          }
+          box.node = grid[rowi][coli]
+        }
+      }
+    }
+    if (!box.node) box.invalid = true
+  }
+  connectionBoxes = connectionBoxes.filter((b) => !b.invalid)
+
+  // 4) Fill boxes with the contained node
+  const newGrid = cloneDeep(grid)
+  for (const box of connectionBoxes) {
+    for (let rowi = box.rowi; rowi < box.rowi + box.height; rowi++) {
+      for (let coli = box.coli; coli < box.coli + box.width; coli++) {
+        newGrid[rowi][coli] = box.node
+      }
+    }
+  }
+
+  return newGrid
+}
 
 export const getGridRepresentation = (layoutString) =>
   trimMat(layoutString.split("\n").map((l) => l.split("")))
