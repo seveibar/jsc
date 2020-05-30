@@ -156,7 +156,7 @@ export function render(
   }
 
   if (isRoot) {
-    console.log(context)
+    // console.log(context)
   }
 
   return context

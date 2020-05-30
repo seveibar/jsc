@@ -3,75 +3,14 @@
 import { RenderContext, RenderedElement } from "../types"
 import { render } from "../index.js"
 import { moveRenderedElementTo } from "../utils"
+import {
+  trimMat,
+  getPosFromMat,
+  getConnectionsFromMat,
+  getGridRepresentation,
+  isNode,
+} from "../utils/layout-matrix"
 import { useConnectionMedium } from "../hooks/use-connections"
-
-const isWhitespace = s => !s || /\s/.test(s)
-const isNode = s => /[a-zA-Z0-9]/.test(s)
-const isConnector = s => !isWhitespace(s) && !isNode(s)
-
-const trimMat = mat => {
-  const initialTotalColumns = Math.max(...mat.map(r => r.length))
-  for (let ci = initialTotalColumns - 1; ci >= 0; ci--) {
-    if (mat.every(r => isWhitespace(r[ci]))) {
-      mat.forEach(r => r.splice(ci, 1))
-    }
-  }
-
-  for (let ri = mat.length - 1; ri >= 0; ri--) {
-    if (mat[ri].every(isWhitespace)) {
-      mat.splice(ri, 1)
-    }
-  }
-
-  return mat
-}
-
-const getPosFromMat = (mat, node) => {
-  let nodePos = null
-  for (let i = 0; i < mat.length; i++) {
-    for (let u = 0; u < mat[0].length; u++) {
-      if (mat[i][u] === node) {
-        nodePos = [i, u]
-        i = mat.length
-        break
-      }
-    }
-  }
-  return nodePos
-}
-
-const getConnectionsFromMat = (mat, node) => {
-  const nodePos = getPosFromMat(mat, node)
-  if (!nodePos) return []
-  const connections = []
-  const traversed = {}
-  traversed[nodePos] = true
-
-  const traverse = pos => {
-    const surroundings = [
-      [pos[0] - 1, pos[1]],
-      [pos[0] + 1, pos[1]],
-      [pos[0], pos[1] - 1],
-      [pos[0], pos[1] + 1]
-    ].filter(([r, c]) => {
-      if (r < 0 || r >= mat.length) return false
-      if (c < 0 || c >= mat[0].length) return false
-      if (traversed[[r, c]]) return false
-      return true
-    })
-    for (let pos of surroundings) {
-      traversed[pos] = true
-      const char = mat[pos[0]][pos[1]]
-      if (isConnector(char)) {
-        traverse(pos)
-      } else if (isNode(char)) {
-        connections.push(char)
-      }
-    }
-  }
-  traverse(nodePos)
-  return connections
-}
 
 const MIN_GRID_SIZE = 20
 
@@ -91,10 +30,10 @@ export default (
       "Layout children must be a string that sort of represents a grid"
     )
 
-  const gridRep = trimMat(layoutString.split("\n").map(l => l.split("")))
+  const gridRep = getGridRepresentation(layoutString)
 
   // Find all the children identifiers
-  const gridCompIds = Array.from(new Set(gridRep.flatMap(r => r))).filter(
+  const gridCompIds = Array.from(new Set(gridRep.flatMap((r) => r))).filter(
     isNode
   )
 
@@ -117,7 +56,7 @@ export default (
 
       const [A, B] = [
         gridCompIds[a.componentIndex],
-        gridCompIds[b.componentIndex]
+        gridCompIds[b.componentIndex],
       ]
 
       const [Ay, Ax] = gridIdPos[A]
@@ -150,7 +89,7 @@ export default (
       if (a.name === "left" || a.name === "right") return false
 
       return false
-    }
+    },
   })
 
   for (const compId of gridCompIds) {
@@ -176,8 +115,8 @@ export default (
   }
 
   // Get the max size of each row, and each column
-  let maxRowHeights = gridRep.map(r => MIN_GRID_SIZE)
-  let maxColWidths = gridRep[0].map(c => MIN_GRID_SIZE)
+  let maxRowHeights = gridRep.map((r) => MIN_GRID_SIZE)
+  let maxColWidths = gridRep[0].map((c) => MIN_GRID_SIZE)
   for (let ri = 0; ri < gridRep.length; ri++) {
     for (let ci = 0; ci < gridRep[ri].length; ci++) {
       const compId = gridRep[ri][ci]
@@ -218,7 +157,7 @@ export default (
     y: 0,
     width: totalWidth,
     height: totalHeight,
-    children: renderedChildrenIds
+    children: renderedChildrenIds,
   }: any)
 
   context._path.pop()
