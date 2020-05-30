@@ -5,7 +5,7 @@ import { render } from "../index.js"
 import { moveRenderedElementTo } from "../utils"
 import {
   trimMat,
-  getPosFromMat,
+  getPositionsFromMat,
   getConnectionsFromMat,
   getGridRepresentation,
   isNode,
@@ -39,7 +39,13 @@ export default (
 
   const gridIdPos = {}
   for (const gridCompId of gridCompIds) {
-    gridIdPos[gridCompId] = getPosFromMat(gridRep, gridCompId)
+    const componentPositions = getPositionsFromMat(gridRep, gridCompId)
+    // You can't do left/right or top/bottom matching if the component appears multiple times
+    // or on multiple rows etc. So only place components that appear exactly
+    // once into gridIdPos
+    if (componentPositions.length === 1) {
+      gridIdPos[gridCompId] = componentPositions[0]
+    }
   }
 
   const gridIdConnectionList = {}
