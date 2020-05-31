@@ -220,7 +220,6 @@ export const useConnections = (
   const ret = {}
   for (let connName in conns) {
     const { exposed = false } = conns[connName]
-    console.log({ id, props, connName })
     if (props[connName]) {
       // TODO check aliases
       ret[connName] = `${id}_${connName}`

@@ -10,7 +10,6 @@ import { useNewConnections } from "../src/jsc/hooks/use-connections.js"
 storiesOf("useConnections", module).add("Basic", () => {
   const Component = () => {
     const [a] = useNewConnections(1)
-    console.log({ a })
     return jsc(
       "linear",
       null,
