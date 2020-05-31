@@ -2,30 +2,34 @@
 
 import type { CreatedElement } from "../types"
 import useRenderContext from "./use-render-context"
+import range from "lodash/range"
 
 // TODO remove, this is probably not the right approach
 export const useNewConnections = (n: number | Array<string>) => {
   const context = useRenderContext()
-  const { connections, _connectionPrefixCounter } = context
-  let prefixes
-  if (typeof n === "number") {
-    prefixes = []
-    for (let i = 0; i < n; i++) {
-      prefixes.push("C")
-    }
-  } else {
-    prefixes = n
-  }
-
-  let returnAr = []
-  for (const prefix of prefixes) {
-    const nextPrefixNumber = (_connectionPrefixCounter[prefix] || 0) + 1
-    const connId = `${prefix}${nextPrefixNumber}`
-    connections[connId] = { id: connId }
-    _connectionPrefixCounter[prefix] = nextPrefixNumber
-    returnAr.push(connId)
-  }
-  return returnAr
+  return range(n).map(() =>
+    getNextConnectionId(context, context._lastRenderedElementId)
+  )
+  // const { connections, _connectionPrefixCounter } = context
+  // let prefixes
+  // if (typeof n === "number") {
+  //   prefixes = []
+  //   for (let i = 0; i < n; i++) {
+  //     prefixes.push("C")
+  //   }
+  // } else {
+  //   prefixes = n
+  // }
+  //
+  // let returnAr = []
+  // for (const prefix of prefixes) {
+  //   const nextPrefixNumber = (_connectionPrefixCounter[prefix] || 0) + 1
+  //   const connId = `${prefix}${nextPrefixNumber}`
+  //   connections[connId] = { id: connId }
+  //   _connectionPrefixCounter[prefix] = nextPrefixNumber
+  //   returnAr.push(connId)
+  // }
+  // return returnAr
 }
 
 /*
@@ -38,16 +42,16 @@ type ConnectionInfo = {|
   exposed?: boolean,
   name: string,
   numConnected?: number,
-  connName?: string
+  connName?: string,
 |}
 export const useConnectionMedium = ({
   id: mediumId,
   isConnectedFn = () => false,
-  isExposedFn = () => false
+  isExposedFn = () => false,
 }: {
   id: string,
   isConnectedFn: (a: ConnectionInfo, b: ConnectionInfo) => boolean,
-  isExposedFn: (a: ConnectionInfo) => boolean
+  isExposedFn: (a: ConnectionInfo) => boolean,
 }) => {
   const context = useRenderContext()
 
@@ -58,14 +62,14 @@ export const useConnectionMedium = ({
     isExposedFn,
     notExplicitlyConnected: [],
     connectionDefinitions: {},
-    solved: false
+    solved: false,
   }
 
   return {
     solveMedium: () => {
       const {
         notExplicitlyConnected,
-        connectionDefinitions
+        connectionDefinitions,
       } = context._mediums[mediumPath]
       const { connections } = context
 
@@ -139,7 +143,7 @@ export const useConnectionMedium = ({
           )
           const exposedConnObj = {
             ...connectionDefinitions[connName],
-            numConnections
+            numConnections,
           }
           console.log(
             "checking if is exposed",
@@ -161,7 +165,8 @@ export const useConnectionMedium = ({
             parentMedium.connectionDefinitions[connName] = {
               ...exposedConnObj,
               componentIndex:
-                (context._renderPathElements[parentMediumPath] || []).length - 1
+                (context._renderPathElements[parentMediumPath] || []).length -
+                1,
             }
             parentMedium.notExplicitlyConnected.push(connName)
           }
@@ -169,7 +174,7 @@ export const useConnectionMedium = ({
       }
 
       context._mediums[mediumPath].solved = true
-    }
+    },
   }
 }
 
@@ -196,8 +201,8 @@ export const useConnections = (
   conns: {
     [connName: string]: {
       exposed?: boolean,
-      aliases?: Array<string>
-    }
+      aliases?: Array<string>,
+    },
   }
 ): { [connName: string]: ConnectionId } => {
   // if (!conns) return useNewConnections(props)
@@ -215,6 +220,7 @@ export const useConnections = (
   const ret = {}
   for (let connName in conns) {
     const { exposed = false } = conns[connName]
+    console.log({ id, props, connName })
     if (props[connName]) {
       // TODO check aliases
       ret[connName] = `${id}_${connName}`
@@ -227,7 +233,7 @@ export const useConnections = (
       medium.connectionDefinitions[`${id}_${connName}`] = {
         componentIndex,
         name: connName,
-        ...conns[connName]
+        ...conns[connName],
       }
       medium.notExplicitlyConnected.push(`${id}_${connName}`)
       ret[connName] = `${id}_${connName}`

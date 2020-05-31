@@ -133,6 +133,8 @@ export function render(
       _height: 0,
       _primitiveCount: {},
       _lastRenderedElementId: "root",
+      connections: {},
+      _connectionPrefixCounter: {},
     }: RenderContext)
     isRoot = true
   }
