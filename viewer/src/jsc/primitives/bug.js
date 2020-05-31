@@ -22,7 +22,7 @@ export default (
     if (o === null) continue
     useConnectionDef[o] = {
       exposed: true,
-      aliases: [`p${o}`]
+      aliases: [`p${o}`],
     }
   }
 
@@ -42,7 +42,7 @@ export default (
       x: left ? linePadding - 15 : bugWidth + linePadding + 15,
       y: rowi * rowHeight + linePadding + rowHeight / 2,
       color: "blue",
-      connection: connIds[o]
+      connection: connIds[o],
     }
   }
 
@@ -55,9 +55,11 @@ export default (
       {
         stroke: "red",
         strokeWidth: 1,
-        d: `M ${linePadding} ${linePadding} L ${linePadding} ${linePadding +
-          bugHeight} ${linePadding + bugWidth} ${linePadding +
-          bugHeight} ${linePadding + bugWidth} ${linePadding} Z`
+        d: `M ${linePadding} ${linePadding} L ${linePadding} ${
+          linePadding + bugHeight
+        } ${linePadding + bugWidth} ${linePadding + bugHeight} ${
+          linePadding + bugWidth
+        } ${linePadding} Z`,
       },
       ...order
         .map((o, i) => {
@@ -67,12 +69,12 @@ export default (
           return {
             stroke: "red",
             strokeWidth: 1,
-            d: `M ${linePadding + (left ? 0 : bugWidth)} ${linePadding +
-              rowHeight / 2 +
-              rowHeight * rowi} l ${left ? -15 : 15} 0`
+            d: `M ${linePadding + (left ? 0 : bugWidth)} ${
+              linePadding + rowHeight / 2 + rowHeight * rowi
+            } l ${left ? -15 : 15} 0`,
           }
         })
-        .filter(Boolean)
+        .filter(Boolean),
     ],
     ports: renderedPorts,
     texts: [
@@ -80,7 +82,7 @@ export default (
         x: 25,
         y: 10,
         text: id,
-        color: "red"
+        color: "red",
       },
       ...order
         .flatMap((o, i) => {
@@ -91,18 +93,18 @@ export default (
               x: renderedPorts[o].x + (left ? 5 : -13),
               y: renderedPorts[o].y - 4,
               color: "red",
-              text: o
+              text: o,
             },
             {
               x: renderedPorts[o].x + (left ? 5 : -13),
               y: renderedPorts[o].y - 4,
               color: "red",
-              text: o
-            }
+              text: o,
+            },
           ].filter(Boolean)
         })
-        .filter(Boolean)
+        .filter(Boolean),
     ],
-    children: []
+    children: [],
   }
 }

@@ -7,9 +7,10 @@ import range from "lodash/range"
 // TODO remove, this is probably not the right approach
 export const useNewConnections = (n: number | Array<string>) => {
   const context = useRenderContext()
-  return range(n).map(() =>
-    getNextConnectionId(context, context._lastRenderedElementId)
-  )
+  // TODO create connection groups in a consistent way here and in the
+  // useConnections method
+  context._customConnectionCounter = context._customConnectionCounter || 0
+  return range(n).map(() => `cgid_custom_${context._customConnectionCounter++}`)
   // const { connections, _connectionPrefixCounter } = context
   // let prefixes
   // if (typeof n === "number") {

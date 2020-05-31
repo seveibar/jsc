@@ -65,6 +65,10 @@ export default (
         gridCompIds[b.componentIndex],
       ]
 
+      // Don't handle if componnent has multiple positions (dense letter, box-style etc.)
+      if (!gridIdPos[A]) return false
+      if (!gridIdPos[B]) return false
+
       const [Ay, Ax] = gridIdPos[A]
       const [By, Bx] = gridIdPos[B]
 
