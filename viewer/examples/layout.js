@@ -134,8 +134,9 @@ storiesOf("Layout", module)
           D: jsc("capacitor", { left: c }),
         },
         `
-    A ─ BB - C
-        BB - D
+    A ─ BBB - C
+        BBB
+        BBB - D
   `
       )
     }

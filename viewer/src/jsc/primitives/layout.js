@@ -14,6 +14,43 @@ import { useConnectionMedium } from "../hooks/use-connections"
 
 const MIN_GRID_SIZE = 20
 
+const getCellWidthAtPos = (gridRep, ri, ci) => {
+  const compId = gridRep[ri][ci]
+  let width = 1
+  let currentColIndex = ci - 1
+  while (currentColIndex >= 0 && gridRep[ri][currentColIndex] === compId) {
+    width++
+    currentColIndex--
+  }
+  currentColIndex = ci + 1
+  while (
+    currentColIndex < gridRep[0].length &&
+    gridRep[ri][currentColIndex] === compId
+  ) {
+    width++
+    currentColIndex++
+  }
+  return width
+}
+const getCellHeightAtPos = (gridRep, ri, ci) => {
+  const compId = gridRep[ri][ci]
+  let height = 1
+  let currentRowIndex = ri - 1
+  while (currentRowIndex >= 0 && gridRep[currentRowIndex][ci] === compId) {
+    height++
+    currentRowIndex--
+  }
+  currentRowIndex = ri + 1
+  while (
+    currentRowIndex < gridRep.length &&
+    gridRep[currentRowIndex][ci] === compId
+  ) {
+    height++
+    currentRowIndex++
+  }
+  return height
+}
+
 export default (
   context: RenderContext,
   element: RenderedElement,
@@ -129,29 +166,34 @@ export default (
   let maxColWidths = gridRep[0].map((c) => MIN_GRID_SIZE)
   for (let ri = 0; ri < gridRep.length; ri++) {
     for (let ci = 0; ci < gridRep[ri].length; ci++) {
+      // TODO manage if component is divided across multiple cells
       const compId = gridRep[ri][ci]
+      const cellWidth = getCellWidthAtPos(gridRep, ri, ci)
+      const cellHeight = getCellHeightAtPos(gridRep, ri, ci)
       if (childRenderingMap[compId]) {
         const { width, height } = childRenderingMap[compId]
-        maxRowHeights[ri] = Math.max(maxRowHeights[ri], height)
-        maxColWidths[ci] = Math.max(maxColWidths[ci], width)
+        maxRowHeights[ri] = Math.max(maxRowHeights[ri], height / cellWidth)
+        maxColWidths[ci] = Math.max(maxColWidths[ci], width / cellHeight)
       }
     }
   }
 
   const cellStartPositions = []
   let currentX = 0,
-    currentY = 0
+    currentY = 0,
+    movedElements = {}
   for (let ri = 0; ri < gridRep.length; ri++) {
     currentX = 0
     for (let ci = 0; ci < gridRep[ri].length; ci++) {
       const compId = gridRep[ri][ci]
-      if (childRenderingMap[compId]) {
+      if (childRenderingMap[compId] && !movedElements[compId]) {
         moveRenderedElementTo(
           context,
           childRenderingIdMap[compId],
           currentX,
           currentY
         )
+        movedElements[compId] = true
       }
       currentX += maxColWidths[ci]
     }
