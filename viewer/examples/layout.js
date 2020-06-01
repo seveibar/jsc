@@ -131,12 +131,66 @@ storiesOf("Layout", module)
             label: "ASD1041",
           }),
           C: jsc("capacitor", { left: b }),
-          D: jsc("capacitor", { left: c }),
+          D: jsc("capacitor", { left: c, rotate: true }),
         },
         `
     A ─ BBB - C
         BBB
         BBB - D
+  `
+      )
+    }
+    const elm = jsc(Component)
+    return (
+      <>
+        <Renderer data={render(elm)} rootDrawingId="La1" />
+        <pre>{JSON.stringify(elm, null, "  ")}</pre>
+        <pre>{JSON.stringify(render(elm), null, "  ")}</pre>
+      </>
+    )
+  })
+  .add("Bug 3", () => {
+    const Component = () => {
+      const [a, b, c, d, e] = useNewConnections(5)
+      return jsc(
+        "layout",
+        {
+          A: jsc("resistor", { right: a }),
+          B: jsc("bug", {
+            "1": a,
+            "5": b,
+            "4": c,
+            "2": d,
+            order: [1, 3, 2, 5, null, 4],
+            ports: {
+              "1": {
+                label: "IN",
+              },
+              "3": {
+                label: "EN",
+              },
+              "2": {
+                label: "GND",
+              },
+              "5": {
+                label: "OUT",
+              },
+              "4": {
+                label: "NC/FB",
+              },
+            },
+            label: "ASD1041",
+          }),
+          C: jsc("capacitor", { left: b }),
+          D: jsc("capacitor", { left: c, right: e, rotate: true }),
+          E: jsc("resistor", { left: d, right: e }),
+        },
+        `
+    A---BBB---C
+        BBB
+    ----BBB---D----
+    |             |
+    -----E---------
   `
       )
     }

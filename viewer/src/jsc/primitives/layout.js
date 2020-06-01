@@ -257,10 +257,14 @@ export default (
     solverVarMap[renderedChildId + "_x"] = posXVar
     solverVarMap[renderedChildId + "_y"] = posYVar
     // Add element x,y bound constraints
-    // TODO x + width <= totalWidth
-    // TODO x >= 0
-    // TODO y + height <= totalHeight
-    // TODO y >= 0
+    solver.addConstraint(
+      new kiwi.Constraint(posXVar, kiwi.Operator.Ge, 0, kiwi.Strength.strong)
+    )
+    solver.addConstraint(
+      new kiwi.Constraint(posYVar, kiwi.Operator.Ge, 0, kiwi.Strength.strong)
+    )
+    // TODO? x + width <= totalWidth
+    // TODO? y + height <= totalHeight
   }
   // new kiwi.Variable([name])
   // new kiwi.Expression(ar) where ar has numbers, variables, expressions or tuples that will be multiplied
@@ -317,11 +321,11 @@ export default (
   }
 
   // This is useful for debugging constraint layout
-  // solver.updateVariables()
-  // const beforeVars = {}
-  // for (const [varName, solverVar] of Object.entries(solverVarMap)) {
-  //   beforeVars[varName] = solverVar.value()
-  // }
+  solver.updateVariables()
+  const beforeVars = {}
+  for (const [varName, solverVar] of Object.entries(solverVarMap)) {
+    beforeVars[varName] = solverVar.value()
+  }
 
   // 5) Add weak constraints for horizontal / vertical alignment
   for (const { port1, port2, align } of pairedPorts) {
@@ -342,15 +346,15 @@ export default (
   solver.updateVariables()
 
   // This is useful for debugging constraint layout
-  // const outputTable = []
-  // for (const [varName, solverVar] of Object.entries(solverVarMap)) {
-  //   outputTable.push({
-  //     varName,
-  //     beforeVal: beforeVars[varName],
-  //     afterVal: solverVar.value(),
-  //   })
-  // }
-  // console.table(outputTable)
+  const outputTable = []
+  for (const [varName, solverVar] of Object.entries(solverVarMap)) {
+    outputTable.push({
+      varName,
+      beforeVal: beforeVars[varName],
+      afterVal: solverVar.value(),
+    })
+  }
+  console.table(outputTable)
 
   // Move rendered elements (again)
   for (let childId of renderedChildrenIds) {
