@@ -203,3 +203,45 @@ storiesOf("Layout", module)
       </>
     )
   })
+  .add("Overlapping if not pushed", () => {
+    const Component = () => {
+      const [a, b] = useNewConnections(2)
+      return jsc(
+        "layout",
+        {
+          A: jsc("bug", {
+            "1": a,
+            "2": b,
+            order: [null, null, 1, 2],
+            ports: {
+              "1": {
+                label: "1",
+              },
+              "2": {
+                label: "2",
+              },
+            },
+            label: "ASD1041",
+          }),
+          B: jsc(
+            "linear",
+            {},
+            jsc("capacitor", { left: a }),
+            jsc("capacitor", { right: b })
+          ),
+        },
+        `
+          AAA----|
+          AAA    B
+          AAA----|`
+      )
+    }
+    const elm = jsc(Component)
+    return (
+      <>
+        <Renderer data={render(elm)} rootDrawingId="La1" />
+        <pre>{JSON.stringify(elm, null, "  ")}</pre>
+        <pre>{JSON.stringify(render(elm), null, "  ")}</pre>
+      </>
+    )
+  })

@@ -36,7 +36,7 @@ export default (
   for (let i = 0; i < order.length; i++) {
     const o = order[i]
     if (o === null) continue
-    const left = i < 3
+    const left = i < rowCount
     const rowi = i % (order.length / 2)
     renderedPorts[o] = {
       x: left ? linePadding - 15 : bugWidth + linePadding + 15,
@@ -64,7 +64,7 @@ export default (
       ...order
         .map((o, i) => {
           if (o === null) return null
-          const left = i < 3
+          const left = i < rowCount
           const rowi = i % (order.length / 2)
           return {
             stroke: "red",
@@ -87,7 +87,7 @@ export default (
       ...order
         .flatMap((o, i) => {
           if (o === null) return null
-          const left = i < 3
+          const left = i < rowCount
           return [
             {
               x: renderedPorts[o].x + (left ? 5 : -13),

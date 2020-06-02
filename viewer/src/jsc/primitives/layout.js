@@ -12,8 +12,18 @@ import {
 } from "../utils/layout-matrix"
 import { useConnectionMedium } from "../hooks/use-connections"
 import * as kiwi from "kiwi.js"
+import cloneDeep from "lodash/cloneDeep"
 
 const MIN_GRID_SIZE = 20
+
+const getAllPortsInChild = (context, childId) => {
+  const { ports = {}, children = [] } = context.rendering[childId]
+  let allPorts = Object.entries(ports)
+  for (const subChildId of children) {
+    allPorts = allPorts.concat(getAllPortsInChild(context, subChildId))
+  }
+  return allPorts
+}
 
 const findClosestManhattanPoints = (A, B) => {
   let currentClosestDist = Infinity
@@ -283,18 +293,19 @@ export default (
 
   // 1) Find any connecting ports that span adjacent grid cells
   const allPorts = renderedChildrenIds.flatMap((childId) =>
-    Object.entries(context.rendering[childId].ports).map(
-      ([portName, portValue]) => ({
-        childId,
-        elmCompId: renderedChildIdToCompId[childId],
-        portName,
-        dx: portValue.x,
-        dy: portValue.y,
-        portId: portValue.connection,
-        cgId: context.connections[portValue.connection],
-      })
-    )
+    getAllPortsInChild(context, childId).map(([portName, portValue]) => ({
+      childId,
+      elmCompId: renderedChildIdToCompId[childId],
+      portName,
+      dx: portValue.x,
+      dy: portValue.y,
+      initialX: context.rendering[childId].x + portValue.x,
+      initialY: context.rendering[childId].y + portValue.y,
+      portId: portValue.connection,
+      cgId: context.connections[portValue.connection],
+    }))
   )
+
   // 2) Find all connection groups with exactly two ports connected
   // 3) Find grid delta between ports
   const pairedPorts = []
@@ -308,6 +319,9 @@ export default (
           elm1Positions,
           elm2Positions
         )
+        // if the ports are from the same child, ignore
+        if (porti.childId === portu.childId) continue
+
         const [gridDy, gridDx] = [p2[0] - p1[0], p2[1] - p1[1]]
         // Don't add ports that are diagonal on the grid to pairedPorts
         if (gridDy !== 0 && gridDx !== 0) continue
@@ -320,12 +334,12 @@ export default (
     }
   }
 
-  // This is useful for debugging constraint layout
-  solver.updateVariables()
-  const beforeVars = {}
-  for (const [varName, solverVar] of Object.entries(solverVarMap)) {
-    beforeVars[varName] = solverVar.value()
-  }
+  // DEBUG This is useful for debugging constraint layout
+  // solver.updateVariables()
+  // const beforeVars = {}
+  // for (const [varName, solverVar] of Object.entries(solverVarMap)) {
+  //   beforeVars[varName] = solverVar.value()
+  // }
 
   // 5) Add weak constraints for horizontal / vertical alignment
   for (const { port1, port2, align } of pairedPorts) {
@@ -335,7 +349,7 @@ export default (
           solverVarMap[`${port1.childId}_y`].plus(port1.dy),
           kiwi.Operator.Eq,
           solverVarMap[`${port2.childId}_y`].plus(port2.dy),
-          kiwi.Strength.medium
+          kiwi.Strength.medium - (port1.initialY + port2.initialY) / 10
         )
       )
     } else {
@@ -345,16 +359,16 @@ export default (
 
   solver.updateVariables()
 
-  // This is useful for debugging constraint layout
-  const outputTable = []
-  for (const [varName, solverVar] of Object.entries(solverVarMap)) {
-    outputTable.push({
-      varName,
-      beforeVal: beforeVars[varName],
-      afterVal: solverVar.value(),
-    })
-  }
-  console.table(outputTable)
+  // DEBUG This is useful for debugging constraint layout
+  // const outputTable = []
+  // for (const [varName, solverVar] of Object.entries(solverVarMap)) {
+  //   outputTable.push({
+  //     varName,
+  //     beforeVal: beforeVars[varName],
+  //     afterVal: solverVar.value(),
+  //   })
+  // }
+  // console.table(outputTable)
 
   // Move rendered elements (again)
   for (let childId of renderedChildrenIds) {

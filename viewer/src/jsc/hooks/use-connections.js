@@ -146,16 +146,16 @@ export const useConnectionMedium = ({
             ...connectionDefinitions[connName],
             numConnections,
           }
-          console.log(
-            "checking if is exposed",
-            exposedConnObj,
-            mediumPath,
-            parentMediumPath,
-            isExposedFn(exposedConnObj),
-            connName,
-            parentMedium.notExplicitlyConnected,
-            !parentMedium.notExplicitlyConnected.includes(connName)
-          )
+          // console.log(
+          //   "checking if is exposed",
+          //   exposedConnObj,
+          //   mediumPath,
+          //   parentMediumPath,
+          //   isExposedFn(exposedConnObj),
+          //   connName,
+          //   parentMedium.notExplicitlyConnected,
+          //   !parentMedium.notExplicitlyConnected.includes(connName)
+          // )
 
           if (
             isExposedFn(exposedConnObj) &&
