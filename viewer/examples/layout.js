@@ -12,9 +12,31 @@ storiesOf("Layout", module)
     const elm = jsc(
       "layout",
       {
-        A: jsc("capacitor"), // jsc("linear", null, jsc("resistor"), jsc("resistor")),
+        A: jsc("capacitor"),
         B: jsc("capacitor"),
         C: jsc("capacitor", { rotate: true }),
+      },
+      `
+    A - B
+        |
+        C
+  `
+    )
+    return (
+      <>
+        <Renderer data={render(elm)} rootDrawingId="La1" />
+        <pre>{JSON.stringify(elm, null, "  ")}</pre>
+        <pre>{JSON.stringify(render(elm), null, "  ")}</pre>
+      </>
+    )
+  })
+  .add("Implied Rotation (support?)", () => {
+    const elm = jsc(
+      "layout",
+      {
+        A: jsc("capacitor"),
+        B: jsc("capacitor"),
+        C: jsc("capacitor"),
       },
       `
     A - B
@@ -203,6 +225,36 @@ storiesOf("Layout", module)
       </>
     )
   })
+  .add(
+    "Block area linear elements with implicit connections (support?)",
+    () => {
+      const Component = () => {
+        return jsc(
+          "layout",
+          {
+            A: jsc("capacitor"), // jsc("linear", null, jsc("resistor"), jsc("resistor")),
+            B: jsc("capacitor"),
+            C: jsc("capacitor"),
+          },
+          `
+      A - BBB
+          BBB
+          BBB
+            |
+            C
+    `
+        )
+      }
+      const elm = jsc(Component)
+      return (
+        <>
+          <Renderer data={render(elm)} rootDrawingId="La1" />
+          <pre>{JSON.stringify(elm, null, "  ")}</pre>
+          <pre>{JSON.stringify(render(elm), null, "  ")}</pre>
+        </>
+      )
+    }
+  )
   .add("Nested ports should align", () => {
     const Component = () => {
       const [a, b] = useNewConnections(2)

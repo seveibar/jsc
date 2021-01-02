@@ -31,7 +31,7 @@ test("layout with elements", () => {
   })
 })
 
-test("layout with area block", () => {
+test.skip("layout with area block with linear elements", () => {
   const elm = jsc(
     "layout",
     {
