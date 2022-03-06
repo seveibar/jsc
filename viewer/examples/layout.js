@@ -225,6 +225,45 @@ storiesOf("Layout", module)
       </>
     )
   })
+  /*
+  export const MyCircuit = () => {
+    const [a,b,c,d,e] = useNewConnections(5)
+    return (
+      <layout
+        A={<resistor right={a} />}
+        B={
+          <bug
+            1={a}
+            5={b}
+            4={c}
+            2={d}
+            order={[1,3,2,5,null,4]}
+            ports={{
+              "1": { label: "IN" },
+              "3": { label: "EN" },
+              "2": { label: "GND" },
+              "5": { label: "OUT" },
+              "4": { label: "NC/FB" }
+              },
+            }}
+            label="ASD1041"
+          />
+        }
+        C={<capacitor left={b} />}
+        D={<capacitor left={c} right={e} rotate />}
+        E={<resistor left={d} right={e}  />}
+      >
+        A---BBB---C
+            BBB
+        ----BBB---D----
+        |             |
+        -----E---------
+      </layout>
+    )
+  }
+    
+
+  */
   .add(
     "Block area linear elements with implicit connections (support?)",
     () => {
